@@ -94,7 +94,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     currentUserReaction: null,
     likesSummary: 'Liked by 3 members',
     comments: [
-      { _id: 'sc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r=s96-c' }, text: '8.4% cap rate on Outer Ring Road is top quartile! 🏢🚀', time: '04:15 pm', createdAt: new Date('2026-09-10T10:45:00.000Z') },
+      { _id: 'sc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null }, text: '8.4% cap rate on Outer Ring Road is top quartile! 🏢🚀', time: '04:15 pm', createdAt: new Date('2026-09-10T10:45:00.000Z') },
       { _id: 'sc-2', author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Strong institutional covenants on this campus.', time: '05:30 pm', createdAt: new Date('2026-09-10T12:00:00.000Z') },
     ],
     commentsCount: 2,
@@ -113,7 +113,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     likesSummary: 'Liked by 4 members',
     comments: [
       { _id: 'ac-1', author: { fullName: 'Shreekutti', username: 'shreekutti' }, text: 'Unrivaled private beach frontage!', time: '10:00 am', createdAt: new Date('2026-09-09T04:30:00.000Z') },
-      { _id: 'ac-2', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r=s96-c' }, text: 'Bespoke marble and high ceiling elevation.', time: '11:15 am', createdAt: new Date('2026-09-09T05:45:00.000Z') },
+      { _id: 'ac-2', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null }, text: 'Bespoke marble and high ceiling elevation.', time: '11:15 am', createdAt: new Date('2026-09-09T05:45:00.000Z') },
     ],
     commentsCount: 2,
     createdAt: new Date('2026-09-09T04:00:00.000Z'),
@@ -123,7 +123,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     _id: 'logesh-p-1',
     content: 'World-class vineyard estate with high soil suitability index and pre-approved zoning. Margaret River Commercial Vineyard — 140 Acres · Pre-Verified Water Rights · $18,500,000.',
     mediaUrl: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200',
-    author: { _id: 'logeshwarana', fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r=s96-c', headline: 'Architectural Consultant & Real Estate Lead', location: 'Western Australia' },
+    author: { _id: 'logeshwarana', fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null, headline: 'Architectural Consultant & Real Estate Lead', location: 'Western Australia' },
     likes: ['sai', 'shreekutti', 'bavadharini_rs'],
     likesCount: 3,
     isLiked: false,
@@ -148,7 +148,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     currentUserReaction: null,
     likesSummary: 'Liked by 3 members',
     comments: [
-      { _id: 'akc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r=s96-c' }, text: 'Triple net lease with institutional covenants is top tier!', time: '06:00 pm', createdAt: new Date('2026-09-07T12:30:00.000Z') },
+      { _id: 'akc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null }, text: 'Triple net lease with institutional covenants is top tier!', time: '06:00 pm', createdAt: new Date('2026-09-07T12:30:00.000Z') },
     ],
     commentsCount: 1,
     createdAt: new Date('2026-09-07T12:00:00.000Z'),
@@ -216,7 +216,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     currentUserReaction: null,
     likesSummary: 'Liked by 2 members',
     comments: [
-      { _id: 'spc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r=s96-c' }, text: 'Prime UK corporate covenants. Solid institutional deal!', time: '04:00 pm', createdAt: new Date('2026-09-03T10:30:00.000Z') },
+      { _id: 'spc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null }, text: 'Prime UK corporate covenants. Solid institutional deal!', time: '04:00 pm', createdAt: new Date('2026-09-03T10:30:00.000Z') },
     ],
     commentsCount: 1,
     createdAt: new Date('2026-09-03T10:00:00.000Z'),

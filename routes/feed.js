@@ -144,7 +144,7 @@ const COMMUNITY_FALLBACK_REACTIONS = [
     username: 'logeshwarana',
     headline: 'Architectural Consultant & Real Estate Lead',
     location: 'Western Australia',
-    profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r=s96-c',
+    profilePicture: null,
     reactionType: 'like',
   },
   {
