@@ -1771,114 +1771,82 @@ router.get('/:id', optionalAuth, async (req, res) => {
   }
 });
 
-// ── POST /api/users/:id/follow (Toggle follow & dispatch notification) ────
-router.post('/:id/follow', authMiddleware, async (req, res) => {
+// Keep POST /follow as a toggle for existing clients. Explicit routes set a desired state.
+const handleFollowUser = async (req, res) => {
+  let session;
   try {
     const viewerId = getAuthenticatedUserId(req);
-    const { id } = req.params;
-
     if (!viewerId) return res.status(401).json({ message: 'Unauthorized.' });
 
-    // Step 1: resolve the target user (supports ObjectId, username, or alias)
-    let resolvedUser = await resolveOrSeedUser(id, viewerId);
-
+    const resolvedUser = await resolveOrSeedUser(req.params.id, viewerId);
     if (!resolvedUser) return res.status(404).json({ message: 'User not found.' });
-
     if (resolvedUser._id.toString() === viewerId.toString()) {
       return res.status(400).json({ message: 'You cannot follow yourself.' });
     }
 
-    const viewer = await User.findById(viewerId);
-    if (!viewer) return res.status(404).json({ message: 'Viewer not found.' });
+    session = await mongoose.startSession();
+    let result;
+    await session.withTransaction(async () => {
+      const viewer = await User.findById(viewerId).session(session);
+      const target = await User.findById(resolvedUser._id).session(session);
+      if (!viewer || !target) {
+        result = { status: 404, body: { message: !viewer ? 'Viewer not found.' : 'User not found.' } };
+        return;
+      }
 
-    // Step 2: Re-fetch target WITHOUT .populate() so followers is raw ObjectIds.
-    const targetRaw = await User.findById(resolvedUser._id).select('_id fullName username followers');
-    if (!targetRaw) return res.status(404).json({ message: 'User not found.' });
+      const isAlreadyFollowing =
+        (target.followers || []).some((id) => id.toString() === viewerId.toString()) ||
+        (viewer.following || []).some((id) => id.toString() === target._id.toString());
+      const isUnfollow = req.method === 'DELETE' || req.path.endsWith('/unfollow');
+      const isFollowing = isUnfollow ? false : req.method === 'PUT' ? true : !isAlreadyFollowing;
+      const operator = isFollowing ? '$addToSet' : '$pull';
 
-    // Step 3: Safe follow-state check — check both target followers and viewer following
-    const isAlreadyFollowing =
-      (targetRaw.followers || []).some(
-        (f) => (f && (f._id ? f._id.toString() : f.toString())) === viewerId.toString()
-      ) ||
-      (viewer.following || []).some(
-        (f) => (f && (f._id ? f._id.toString() : f.toString())) === targetRaw._id.toString()
-      );
+      // Both sides and their notification commit together, or all roll back.
+      await User.updateOne({ _id: target._id }, { [operator]: { followers: viewer._id } }, { session });
+      await User.updateOne({ _id: viewer._id }, { [operator]: { following: target._id } }, { session });
+      if (!isFollowing) {
+        await Notification.deleteMany({ recipient: target._id, sender: viewer._id, type: 'follow' }, { session });
+      } else if (!isAlreadyFollowing) {
+        await Notification.create([{
+          recipient: target._id,
+          sender: viewer._id,
+          type: 'follow',
+          message: `${viewer.fullName} started following you.`,
+          metadata: { senderUsername: viewer.username, senderAvatar: viewer.profilePicture },
+        }], { session });
+      }
 
-    if (isAlreadyFollowing) {
-      // Unfollow — use $pull to atomically remove
-      await Promise.all([
-        User.updateOne({ _id: targetRaw._id }, { $pull: { followers: viewer._id } }),
-        User.updateOne({ _id: viewer._id }, { $pull: { following: targetRaw._id } }),
-      ]);
-
-      // Remove follow notification
-      await Notification.deleteMany({
-        recipient: targetRaw._id,
-        sender: viewer._id,
-        type: 'follow',
-      });
-
-      // Fetch fresh counts for both target and viewer after update
-      const [updatedTarget, updatedViewer] = await Promise.all([
-        User.findById(targetRaw._id).select('followers fullName username'),
-        User.findById(viewer._id).select('following fullName username'),
-      ]);
-
-      return res.status(200).json({
-        isFollowing: false,
-        followerCount: (updatedTarget.followers || []).length,
-        followingCount: (updatedViewer.following || []).length,
-        targetUser: {
-          id: updatedTarget._id.toString(),
-          _id: updatedTarget._id.toString(),
-          fullName: updatedTarget.fullName,
-          username: updatedTarget.username,
+      const updatedTarget = await User.findById(target._id).session(session);
+      const updatedViewer = await User.findById(viewer._id).session(session);
+      result = {
+        status: 200,
+        body: {
+          isFollowing,
+          followerCount: new Set(updatedTarget.followers.map(String)).size,
+          followingCount: new Set(updatedViewer.following.map(String)).size,
+          targetUser: {
+            id: updatedTarget._id.toString(),
+            _id: updatedTarget._id.toString(),
+            fullName: updatedTarget.fullName,
+            username: updatedTarget.username,
+          },
+          message: `${isFollowing ? 'Following' : 'Unfollowed'} ${target.fullName}`,
         },
-        message: `Unfollowed ${targetRaw.fullName}`,
-      });
-    } else {
-      // Follow — use $addToSet to atomically add
-      await Promise.all([
-        User.updateOne({ _id: targetRaw._id }, { $addToSet: { followers: viewer._id } }),
-        User.updateOne({ _id: viewer._id }, { $addToSet: { following: targetRaw._id } }),
-      ]);
-
-      // Create live Notification in MongoDB
-      await Notification.create({
-        recipient: targetRaw._id,
-        sender: viewer._id,
-        type: 'follow',
-        message: `${viewer.fullName} started following you.`,
-        metadata: {
-          senderUsername: viewer.username,
-          senderAvatar: viewer.profilePicture,
-        },
-      });
-
-      // Fetch fresh counts for both target and viewer after update
-      const [updatedTarget, updatedViewer] = await Promise.all([
-        User.findById(targetRaw._id).select('followers fullName username'),
-        User.findById(viewer._id).select('following fullName username'),
-      ]);
-
-      return res.status(200).json({
-        isFollowing: true,
-        followerCount: (updatedTarget.followers || []).length,
-        followingCount: (updatedViewer.following || []).length,
-        targetUser: {
-          id: updatedTarget._id.toString(),
-          _id: updatedTarget._id.toString(),
-          fullName: updatedTarget.fullName,
-          username: updatedTarget.username,
-        },
-        message: `Following ${targetRaw.fullName}`,
-      });
-    }
+      };
+    });
+    return res.status(result.status).json(result.body);
   } catch (error) {
-    console.error('FOLLOW TOGGLE ERROR:', error);
+    console.error('FOLLOW UPDATE ERROR:', error);
     return res.status(500).json({ message: 'Failed to update follow status.', error: error.message });
+  } finally {
+    if (session) await session.endSession();
   }
-});
+};
+
+router.post('/:id/follow', authMiddleware, handleFollowUser);
+router.put('/:id/follow', authMiddleware, handleFollowUser);
+router.post('/:id/unfollow', authMiddleware, handleFollowUser);
+router.delete('/:id/follow', authMiddleware, handleFollowUser);
 
 // ── DELETE /api/users/me (Account Deletion — GDPR / DPDP Act 2023 Right to Erasure) ──
 router.delete('/me', authMiddleware, async (req, res) => {

@@ -1,0 +1,24 @@
+name: Follow regression
+
+on:
+  pull_request:
+  push:
+    branches: [main, fix/android-explicit-unfollow]
+
+permissions:
+  contents: read
+
+jobs:
+  follow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      MONGOMS_VERSION: 7.0.24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm test
