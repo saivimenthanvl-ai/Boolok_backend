@@ -68,7 +68,7 @@ test('all relationship routes require authentication', async () => {
 });
 
 test('explicit unfollow routes remain unfollowed on retries', async () => {
-  for (const [method, action] of [['POST', 'unfollow'], ['DELETE', 'follow']]) {
+  for (const [method, action] of [['POST', 'unfollow'], ['POST', 'unfollow/'], ['DELETE', 'follow']]) {
     assert.equal((await request('PUT', 'follow')).body.isFollowing, true);
     await assertRelationship(true);
     for (let retry = 0; retry < 3; retry++) {

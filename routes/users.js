@@ -1797,7 +1797,7 @@ const handleFollowUser = async (req, res) => {
       const isAlreadyFollowing =
         (target.followers || []).some((id) => id.toString() === viewerId.toString()) ||
         (viewer.following || []).some((id) => id.toString() === target._id.toString());
-      const isUnfollow = req.method === 'DELETE' || req.path.endsWith('/unfollow');
+      const isUnfollow = req.method === 'DELETE' || req.route.path === '/:id/unfollow';
       const isFollowing = isUnfollow ? false : req.method === 'PUT' ? true : !isAlreadyFollowing;
       const operator = isFollowing ? '$addToSet' : '$pull';
 
