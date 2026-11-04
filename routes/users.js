@@ -174,7 +174,8 @@ router.get('/search', async (req, res) => {
       }
     } catch (_) { }
 
-    const regex = new RegExp(q, 'i');
+    const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedQuery, 'i');
 
     const users = await User.find({
       $and: [
@@ -207,7 +208,8 @@ router.get('/search', async (req, res) => {
 
     const seenUsernames = new Set(results.map((r) => (r.username || '').toLowerCase()));
     for (const m of memberMatches) {
-      if (!seenUsernames.has(m.username.toLowerCase())) {
+      const memberKeys = [m.username, ...(m.aliases || [])].map((k) => String(k).toLowerCase());
+      if (!memberKeys.some((k) => seenUsernames.has(k))) {
         seenUsernames.add(m.username.toLowerCase());
         results.push({
           id: m.username,
@@ -234,7 +236,19 @@ router.get('/search', async (req, res) => {
       return true;
     });
 
-    return res.status(200).json({ results: filteredResults });
+    // One entry per canonical account (id first, then handle)
+    const seenIds = new Set();
+    const seenHandles = new Set();
+    const dedupedResults = filteredResults.filter((r) => {
+      const rid = String(r.id || r._id || '');
+      const handle = String(r.username || '').toLowerCase();
+      if ((rid && seenIds.has(rid)) || (handle && seenHandles.has(handle))) return false;
+      if (rid) seenIds.add(rid);
+      if (handle) seenHandles.add(handle);
+      return true;
+    });
+
+    return res.status(200).json({ results: dedupedResults });
   } catch (error) {
     console.error('SEARCH USERS ERROR:', error);
     return res.status(500).json({ message: 'Search failed.', error: error.message });
@@ -389,7 +403,7 @@ const COMMUNITY_MEMBERS = [
   {
     username: 'saivimenthanvl',
     aliases: ['sai', 'saivimenthanvl', 'saivimenthan'],
-    fullName: 'Sai',
+    fullName: 'Sai Vimenthan V L',
     email: 'saivimenthanvl@gmail.com',
     headline: 'Principal Real Estate Broker & Portfolio Advisor',
     location: 'Chennai, Tamil Nadu · Prime Assets',
@@ -1396,7 +1410,7 @@ const LOGESHWARAN_REELS = [
     price: '₹15.2 Cr',
     aiMatch: null,
     insight: 'Soil analysis indicates 92% suitability for premium Cabernet Sauvignon. Water rights pre-verified for 50 years.',
-    likes: 2400,
+    likes: 0,
     poster: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200',
     thumbnail: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
@@ -1412,7 +1426,7 @@ const LOGESHWARAN_REELS = [
     price: '$12,400,000',
     aiMatch: null,
     insight: 'Thermal zoning optimized. High potential for eco-luxury cabins or a private wellness estate.',
-    likes: 920,
+    likes: 0,
     poster: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200',
     thumbnail: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
@@ -1428,7 +1442,7 @@ const LOGESHWARAN_REELS = [
     price: '$24,000,000',
     aiMatch: null,
     insight: 'Tourism growth in this sector is up 14% YoY. Zoning allows for luxury boutique resort development.',
-    likes: 1800,
+    likes: 0,
     poster: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200',
     thumbnail: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
@@ -1447,7 +1461,7 @@ const SAI_REELS = [
     price: '$16,500,000',
     aiMatch: null,
     insight: 'Strong engagement expected based on similar recent listings.',
-    likes: 100,
+    likes: 0,
     poster: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1200',
     thumbnail: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1200',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
@@ -1469,7 +1483,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Fully leased Grade-A Tech Park development with pre-verified institutional efficiency ratings.',
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200',
-      likes: ['sai', 'logeshwarana', 'ajmal'],
+      likes: [],
       comments: [
         { author: { fullName: 'Logeshwaran A', username: 'logeshwarana' }, text: '8.4% cap rate on Outer Ring Road is top quartile.' },
         { author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Strong institutional covenants.' },
@@ -1486,7 +1500,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'World-class vineyard estate with high soil suitability index and pre-approved zoning.',
       image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
-      likes: ['sai', 'shreekutti', 'bavadharini_rs'],
+      likes: [],
       comments: [
         { author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Soil analysis and water rights are pristine.' },
         { author: { fullName: 'Bavadharini RS', username: 'bavadharini_rs' }, text: 'Architectural layout is stunning.' },
@@ -1503,7 +1517,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Direct beach access, smart home automation, infinity pool overlooking Dubai Marina.',
       image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200',
-      likes: ['sai', 'logeshwarana', 'shreekutti', 'the_akshtr_estate'],
+      likes: [],
       comments: [
         { author: { fullName: 'Shreekutti', username: 'shreekutti' }, text: 'Unrivaled private beach frontage!' },
         { author: { fullName: 'Logeshwaran A', username: 'logeshwarana' }, text: 'Bespoke marble and high ceiling elevation.' },
@@ -1520,7 +1534,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Double-height glass living room, customized Italian joinery, panoramic sea view balcony.',
       image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200',
-      likes: ['sai', 'ajmal', 'logeshwarana'],
+      likes: [],
       comments: [
         { author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Incredible acoustic zoning and clean lines!' },
       ],
@@ -1536,7 +1550,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Modern commercial tower with multi-level parking, 100% power backup, and prime expressway frontage.',
       image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
-      likes: ['sai', 'shreekutti', 'logeshwarana'],
+      likes: [],
       comments: [
         { author: { fullName: 'Logeshwaran A', username: 'logeshwarana' }, text: 'Triple net lease with institutional covenants is top tier!' },
       ],
@@ -1552,7 +1566,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Bespoke modern architecture with floor-to-ceiling glass, sunset views, and private yacht slip.',
       image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200',
-      likes: ['sai', 'ajmal', 'bavadharini_rs'],
+      likes: [],
       comments: [
         { author: { fullName: 'Mohammed Ajmal', username: 'ajmal' }, text: 'Deepwater dock specs and yacht clearance are remarkable.' },
       ],
@@ -1568,7 +1582,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'New architectural masterpiece in Beverly Hills. 8 Bedrooms, 11 Baths, custom Italian marble, and zero-edge cascading pool. 🏆✨ Price: $12.5M.',
       image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
-      likes: ['sai', 'logeshwarana', 'shreekutti'],
+      likes: [],
       comments: [
         {
           _id: 'vg-c1',
@@ -1601,7 +1615,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'High-yield commercial multi-family portfolio with pre-verified institutional efficiency ratings.',
       image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200',
-      likes: ['sai', 'ajmal'],
+      likes: [],
       comments: [],
     },
   ],
@@ -1615,7 +1629,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Grade-A institutional office headquarters with 100% occupancy and blue-chip covenants.',
       image: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200',
-      likes: ['logeshwarana', 'shreekutti'],
+      likes: [],
       comments: [
         { author: { fullName: 'Logeshwaran A', username: 'logeshwarana' }, text: 'Prime UK corporate covenants.' },
       ],

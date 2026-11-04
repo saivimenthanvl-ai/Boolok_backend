@@ -224,6 +224,15 @@ const FALLBACK_COMMUNITY_POSTS = [
   },
 ];
 
+// Static fallback content must never ship fabricated engagement: likes come only from persisted reactions.
+FALLBACK_COMMUNITY_POSTS.forEach((p) => {
+  p.likes = [];
+  p.likesCount = 0;
+  p.isLiked = false;
+  p.currentUserReaction = null;
+  p.likesSummary = '0 likes';
+});
+
 // ── GET /api/feed : Fetch all posts ──────────────────────────────────────────
 router.get('/', optionalAuth, async (req, res) => {
   try {
@@ -242,10 +251,22 @@ router.get('/', optionalAuth, async (req, res) => {
       })
       .map((p) => formatPost(p, viewerId));
 
-    // Ensure fallback community posts are always available and merged seamlessly
+    // Canonical identity: one entry per persisted post _id
+    const seenPostIds = new Set();
+    formatted = formatted.filter((p) => {
+      const pid = p._id.toString();
+      if (seenPostIds.has(pid)) return false;
+      seenPostIds.add(pid);
+      return true;
+    });
+
+    // Static fallbacks only fill in for authors with no persisted post (never duplicate a real one)
     const dbIds = new Set(formatted.map((p) => p._id.toString()));
+    const dbAuthorHandles = new Set(
+      formatted.map((p) => String(p.author?.username || '').toLowerCase()).filter(Boolean)
+    );
     const fallbackExtras = FALLBACK_COMMUNITY_POSTS
-      .filter((p) => !dbIds.has(p._id))
+      .filter((p) => !dbIds.has(p._id) && !dbAuthorHandles.has(String(p.author?.username || '').toLowerCase()))
       .map((p) => ({
         ...p,
         isLiked: viewerId ? (p.likes || []).includes(viewerId.toString()) : false,
