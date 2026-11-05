@@ -147,12 +147,12 @@ const formatReel = (reel, viewerId = null) => {
   const titleStr = r.title || '';
   let priceStr = r.price !== undefined && r.price !== null ? String(r.price).trim() : '';
   if (!priceStr && titleStr.toLowerCase().includes('coventry')) {
-    priceStr = '$16,500,000';
+    priceStr = '£12,242,788';
   }
 
   let insightStr = r.insight || '';
-  if (titleStr.toLowerCase().includes('coventry') && insightStr.includes(',500,000') && !insightStr.includes('$16,500,000')) {
-    insightStr = insightStr.replace(/,?500,000/, '$16,500,000');
+  if (titleStr.toLowerCase().includes('coventry')) {
+    insightStr = insightStr.replace(/\$16,?500,000/, '£12,242,788');
   }
 
   return {
