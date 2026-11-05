@@ -258,7 +258,13 @@ if (!process.env.GOOGLE_CLIENT_ID) {
   );
 }
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const ALLOWED_GOOGLE_AUDIENCES = [
+  process.env.GOOGLE_CLIENT_ID,
+  '166853460121-jdlugm3ncga9qu4vk3b45lda5onusup2.apps.googleusercontent.com',
+  '166853460121-ue9d43578k6i5211b46bfsoefo81f6di.apps.googleusercontent.com',
+].filter(Boolean);
+
+const googleClient = new OAuth2Client();
 
 const TOKEN_ISSUER = 'boolok-gpt-api';
 const TOKEN_AUDIENCE = 'boolok-gpt-client';
@@ -294,6 +300,11 @@ function sanitizeUser(user) {
     profilePicture: user.profilePicture || null,
     bio: user.bio || '',
     goal: user.goal || null,
+    avatarInitial: user.avatarInitial || null,
+    avatarBgColor: user.avatarBgColor || null,
+    avatarMode: user.avatarMode || null,
+    isPro: Boolean(user.isPro || (user.subscription && user.subscription.plan === 'pro')),
+    subscription: user.subscription || null,
   };
 }
 
@@ -418,7 +429,7 @@ router.post('/send-login-otp', async (req, res) => {
     }
 
     const otp = generateOtp();
-    storeOtp(email, otp);
+    await storeOtp(email, otp, 'login');
 
     console.log(`[auth] Login OTP requested for ${email.slice(0, 3)}***`);
 
@@ -577,12 +588,14 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Incorrect username/email or password.' });
     }
 
-    if (!user.password) {
+    if (!user.password || user.requiresPasswordReset) {
       return res.status(401).json({
         message:
           user.authProvider === 'google'
             ? 'This account uses Google sign-in. Please continue with Google.'
-            : 'Incorrect email or password.',
+            : (user.requiresPasswordReset
+                ? 'Password reset is required for security. Please use Forgot Password to set a new password.'
+                : 'Incorrect username/email or password.'),
       });
     }
 
@@ -614,7 +627,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     const otp = generateOtp();
-    storeOtp(email, otp);
+    await storeOtp(email, otp, 'password_reset');
     console.log(`[auth] Password reset OTP requested for ${email.slice(0, 3)}***`);
 
     const emailSent = await sendOtpEmail(email, otp, 'Password Reset');
@@ -684,7 +697,7 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ message: 'New password must contain at least 8 characters.' });
     }
 
-    const isValidOtp = verifyOtpHelper(email, otp);
+    const isValidOtp = await verifyOtpHelper(email, otp);
     if (!isValidOtp) {
       return res.status(400).json({ message: 'Invalid or expired verification code. Please request a new code.' });
     }
@@ -723,63 +736,90 @@ router.post('/google', async (req, res) => {
     let fullName = 'Google User';
     let profilePicture = null;
     let googleSubject = null;
+    let isEmailVerified = false;
 
     try {
-      if (process.env.GOOGLE_CLIENT_ID) {
-        const ticket = await googleClient.verifyIdToken({
-          idToken,
-          audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        email = payload.email?.toLowerCase();
-        fullName = payload.name || 'Google User';
-        profilePicture = payload.picture || null;
-        googleSubject = payload.sub || null;
-      } else {
-        // Decode without verification if client id is not configured
-        const decoded = jwt.decode(idToken);
-        email = decoded?.email?.toLowerCase();
-        fullName = decoded?.name || 'Google User';
-        profilePicture = decoded?.picture || null;
-        googleSubject = decoded?.sub || null;
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: ALLOWED_GOOGLE_AUDIENCES.length > 0 ? ALLOWED_GOOGLE_AUDIENCES : undefined,
+      });
+      const payload = ticket.getPayload();
+      if (!payload) {
+        throw new Error('Google identity payload could not be verified.');
       }
+      email = payload.email?.toLowerCase();
+      fullName = payload.name || payload.given_name || 'Google User';
+      profilePicture = payload.picture || null;
+      googleSubject = payload.sub || null;
+      isEmailVerified = Boolean(payload.email_verified);
     } catch (verifyErr) {
+      console.warn('[auth] Google token cryptographic verification failed:', verifyErr.message);
+      // If client IDs are configured, reject unverified tokens for security
+      if (ALLOWED_GOOGLE_AUDIENCES.length > 0) {
+        return res.status(401).json({ message: 'Invalid Google identity token.', error: verifyErr.message });
+      }
+      // Development fallback only if no audiences are configured
       const decoded = jwt.decode(idToken);
       if (decoded && decoded.email) {
         email = decoded.email.toLowerCase();
         fullName = decoded.name || 'Google User';
         profilePicture = decoded.picture || null;
         googleSubject = decoded.sub || null;
+        isEmailVerified = Boolean(decoded.email_verified);
       } else {
         throw verifyErr;
       }
     }
 
     if (!email) {
-      return res.status(400).json({ message: 'Google account has no email.' });
+      return res.status(400).json({ message: 'Google account has no verified email address.' });
     }
 
-    let user = await User.findOne({ email });
+    // 1. Look up user by Google Subject first (stable identifier)
+    let user = googleSubject ? await User.findOne({ googleSubject }) : null;
+
+    // 2. If not found by googleSubject, look up by email
+    if (!user) {
+      user = await User.findOne({ email });
+    }
 
     if (!user) {
       const randomPassword = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 12);
-      const username = email.split('@')[0].toLowerCase();
+      let baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+      if (!baseUsername) baseUsername = 'user';
+      let uniqueUsername = baseUsername;
+      let counter = 1;
+
+      // Ensure username uniqueness
+      while (await User.findOne({ username: uniqueUsername })) {
+        uniqueUsername = `${baseUsername}${counter}`;
+        counter++;
+      }
 
       user = await User.create({
         fullName,
-        username,
+        username: uniqueUsername,
         email,
         password: randomPassword,
         authProvider: 'google',
         googleSubject,
         profilePicture,
+        isEmailVerified: isEmailVerified,
       });
     } else {
-      if (googleSubject) user.googleSubject = googleSubject;
+      // Existing user: preserve account, update Google linking and details cleanly
+      if (googleSubject && !user.googleSubject) {
+        user.googleSubject = googleSubject;
+      }
       if (profilePicture && !user.profilePicture) {
         user.profilePicture = profilePicture;
       }
-      user.authProvider = 'google';
+      if (isEmailVerified && !user.isEmailVerified) {
+        user.isEmailVerified = true;
+      }
+      if (user.authProvider !== 'google') {
+        user.authProvider = 'google';
+      }
       await user.save();
     }
 

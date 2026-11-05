@@ -1015,9 +1015,7 @@ const COMMUNITY_DEALS = {
     },
     {
       id: 'd-logesh-2',
-      title: 'Kyoto Forest Eco-Luxury Retreat',
-      location: 'Kyoto, Japan',
-      price: '$12,400,000',
+      title: 'Kyoto Forest Eco-Luxury Retreat', location: 'Kyoto, Japan', price: '¥1,900,000,000',
       capRate: '8.5% Cap Rate',
       type: 'Boutique Hospitality Estate',
       date: 'May 2026',
@@ -1079,9 +1077,7 @@ const COMMUNITY_DEALS = {
   bavadharini_rs: [
     {
       id: 'd-bava-1',
-      title: 'Poes Garden Ultra Luxury Penthouse',
-      location: 'Poes Garden, Chennai, TN',
-      price: '$6,200,000',
+      title: 'Poes Garden Ultra Luxury Penthouse', location: 'Poes Garden, Chennai, TN', price: '₹58.5 Cr',
       capRate: '7.2% Yield',
       type: 'Bespoke Architectural Penthouse',
       date: 'Jul 2026',
@@ -1105,9 +1101,7 @@ const COMMUNITY_DEALS = {
   the_akshtr_estate: [
     {
       id: 'd-akshat-1',
-      title: 'OMR Cyber Park Tower B',
-      location: 'OMR IT Corridor, Chennai, TN',
-      price: '$35,000,000',
+      title: 'OMR Cyber Park Tower B', location: 'OMR IT Corridor, Chennai, TN', price: '₹330.4 Cr',
       capRate: '8.8% Cap Rate',
       type: 'Fortune 500 Leased IT Tower',
       date: 'Aug 2026',
@@ -1157,9 +1151,7 @@ const COMMUNITY_DEALS = {
   sai: [
     {
       id: 'd-sai-1',
-      title: 'Coventry Corporate Headquarters',
-      location: 'Coventry, United Kingdom',
-      price: '$16,500,000',
+      title: 'Coventry Corporate Headquarters', location: 'Coventry, United Kingdom', price: '£12,242,788',
       capRate: '8.2% Cap Rate',
       type: 'Institutional Grade-A Office Hub',
       date: 'Aug 2026',
@@ -1195,9 +1187,7 @@ const COMMUNITY_DEALS = {
   aswin: [
     {
       id: 'd-aswin-1',
-      title: 'Aswin Real Estate Prime Commercial Acquisition',
-      location: 'Chennai, Tamil Nadu · Luxury & Commercial Assets',
-      price: '$12,500,000',
+      title: 'Aswin Real Estate Prime Commercial Acquisition', location: 'Chennai, Tamil Nadu · Luxury & Commercial Assets', price: '₹118.0 Cr',
       capRate: '8.4% Cap Rate',
       type: 'Institutional Commercial Asset',
       date: '2026',
@@ -1209,9 +1199,7 @@ const COMMUNITY_DEALS = {
   'aswin': [
     {
       id: 'd-aswin-1',
-      title: 'Aswin Real Estate Prime Commercial Acquisition',
-      location: 'Chennai, Tamil Nadu · Luxury & Commercial Assets',
-      price: '$12,500,000',
+      title: 'Aswin Real Estate Prime Commercial Acquisition', location: 'Chennai, Tamil Nadu · Luxury & Commercial Assets', price: '₹118.0 Cr',
       capRate: '8.4% Cap Rate',
       type: 'Institutional Commercial Asset',
       date: '2026',
@@ -1407,7 +1395,7 @@ const LOGESHWARAN_REELS = [
     _id: 'logesh-reel-1',
     title: 'Margaret River Vineyard',
     location: 'Western Australia',
-    price: '₹15.2 Cr',
+    price: 'A$3,485,000',
     aiMatch: null,
     insight: 'Soil analysis indicates 92% suitability for premium Cabernet Sauvignon. Water rights pre-verified for 50 years.',
     likes: 0,
@@ -1421,9 +1409,7 @@ const LOGESHWARAN_REELS = [
   },
   {
     _id: 'logesh-reel-2',
-    title: 'Kyoto Forest Retreat',
-    location: 'Kyoto, Japan',
-    price: '$12,400,000',
+    title: 'Kyoto Forest Retreat', location: 'Kyoto, Japan', price: '¥1,900,000,000',
     aiMatch: null,
     insight: 'Thermal zoning optimized. High potential for eco-luxury cabins or a private wellness estate.',
     likes: 0,
@@ -1456,9 +1442,7 @@ const LOGESHWARAN_REELS = [
 const SAI_REELS = [
   {
     _id: 'sai-reel-coventry',
-    title: 'Coventry Corporate Headquarters',
-    location: 'Coventry, United Kingdom',
-    price: '$16,500,000',
+    title: 'Coventry Corporate Headquarters', location: 'Coventry, United Kingdom', price: '£12,242,788',
     aiMatch: null,
     insight: 'Strong engagement expected based on similar recent listings.',
     likes: 0,
@@ -1622,9 +1606,7 @@ const COMMUNITY_POSTS_MAP = {
   sai: [
     {
       _id: 'sai-p-1',
-      title: 'Coventry Corporate Headquarters',
-      price: '$16,500,000',
-      location: 'Coventry, United Kingdom',
+      title: 'Coventry Corporate Headquarters', price: '£12,242,788', location: 'Coventry, United Kingdom',
       specs: '52,000 sq ft · 8.2% Cap Rate',
       content: 'Grade-A institutional office headquarters with 100% occupancy and blue-chip covenants.',
       image: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200',
@@ -1734,7 +1716,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
         location: r.location || '',
         authorName: r.authorName || (r.author && r.author.fullName) || '',
         caption: r.caption || '',
-        price: r.price !== undefined && r.price !== null && String(r.price).trim() !== '' ? String(r.price).trim() : ((r.title || '').toLowerCase().includes('coventry') ? '$16,500,000' : ''),
+        price: r.price !== undefined && r.price !== null && String(r.price).trim() !== '' ? String(r.price).trim() : ((r.title || '').toLowerCase().includes('coventry') ? '£12,242,788' : ''),
         aiMatch: typeof r.aiMatch === 'number' ? r.aiMatch : null,
         insight: r.insight || r.caption || '',
         likes: likesArray.length,

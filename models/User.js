@@ -23,8 +23,13 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
+      default: null,
       select: false,
+    },
+    requiresPasswordReset: {
+      type: Boolean,
+      default: false,
     },
     phoneNumber: {
       type: String,
@@ -82,6 +87,26 @@ const userSchema = new mongoose.Schema(
     goal: {
       type: String,
       enum: ['buying', 'selling', 'investing', 'analysis', null],
+      default: null,
+    },
+    avatarInitial: {
+      type: String,
+      default: null,
+    },
+    avatarBgColor: {
+      type: String,
+      default: null,
+    },
+    avatarMode: {
+      type: String,
+      default: null,
+    },
+    isPro: {
+      type: Boolean,
+      default: false,
+    },
+    subscription: {
+      type: mongoose.Schema.Types.Mixed,
       default: null,
     },
   },
