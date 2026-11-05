@@ -12,18 +12,18 @@ const router = express.Router();
 
 const nodemailer = require('nodemailer');
 
-// In-memory OTP storage with timestamp expiry (10 minutes)
+// In-memory OTP storage with timestamp expiry (5 minutes)
 const otpStore = new Map();
 
 function generateOtp() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return crypto.randomInt(0, 1000000).toString().padStart(6, '0');
 }
 
 async function storeOtp(target, otp, type = 'register') {
   const norm = String(target).trim().toLowerCase();
   otpStore.set(norm, {
     otp: String(otp).trim(),
-    expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
   });
 
   try {
@@ -81,7 +81,7 @@ async function sendPhoneOtp(phoneNumber, otp) {
           },
           body: JSON.stringify({
             route: 'q',
-            message: `Your Boolok AI verification code is ${otp}. Valid for 10 minutes.`,
+            message: `Your Boolok AI verification code is ${otp}. Valid for 5 minutes.`,
             language: 'english',
             flash: 0,
             numbers: cleanPhone,
@@ -98,7 +98,7 @@ async function sendPhoneOtp(phoneNumber, otp) {
       }
 
       // Method 2: Fast2SMS GET fallback with authorization header
-      const quickUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(fast2smsKey)}&route=q&message=${encodeURIComponent(`Your Boolok AI verification code is ${otp}. Valid for 10 minutes.`)}&language=english&flash=0&numbers=${cleanPhone}`;
+      const quickUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(fast2smsKey)}&route=q&message=${encodeURIComponent(`Your Boolok AI verification code is ${otp}. Valid for 5 minutes.`)}&language=english&flash=0&numbers=${cleanPhone}`;
       const getRes = await fetch(quickUrl, {
         method: 'GET',
         headers: {
@@ -126,7 +126,7 @@ async function sendPhoneOtp(phoneNumber, otp) {
       const client = twilio(twilioSid, twilioAuth);
       const formattedTo = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber.replace(/[^0-9]/g, '').slice(-10)}`;
       const message = await client.messages.create({
-        body: `Your Boolok AI verification code is ${otp}. Valid for 10 minutes.`,
+        body: `Your Boolok AI verification code is ${otp}. Valid for 5 minutes.`,
         from: twilioPhone,
         to: formattedTo,
       });
@@ -144,7 +144,7 @@ async function sendPhoneOtp(phoneNumber, otp) {
 
 async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
   const resendApiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.GMAIL_USER || 'onboarding@resend.dev';
+  const fromEmail = (process.env.EMAIL_FROM || process.env.RESEND_FROM || 'Boolok AI <onboarding@resend.dev>').trim();
 
   const htmlBody = `
     <!DOCTYPE html>
@@ -157,7 +157,7 @@ async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
         <div style="background: #060b13; border: 1px solid #e6b800; border-radius: 8px; padding: 18px 24px; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #daa520; display: inline-block; margin-bottom: 24px;">
           ${otp}
         </div>
-        <p style="font-size: 13px; color: #94a3b8; line-height: 1.5;">This verification code is valid for <strong>10 minutes</strong>. If you did not request this code, please ignore this email.</p>
+        <p style="font-size: 13px; color: #94a3b8; line-height: 1.5;">This verification code is valid for <strong>5 minutes</strong>. If you did not request this code, please ignore this email.</p>
         <div style="font-size: 11px; color: #64748b; margin-top: 30px; border-top: 1px solid #1a273c; padding-top: 16px;">
           © 2026 Boolok GPT Real Estate Intelligence. All rights reserved.
         </div>
@@ -176,10 +176,10 @@ async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Boolok AI <onboarding@resend.dev>',
+          from: fromEmail,
           to: [toEmail],
-          subject: `Your Boolok AI Verification Code: ${otp}`,
-          text: `Your Boolok AI verification code is: ${otp}. This code expires in 10 minutes.`,
+          subject: 'Your Boolok AI Verification Code',
+          text: `Your Boolok AI verification code is: ${otp}. This code expires in 5 minutes.`,
           html: htmlBody,
         }),
       });
@@ -219,8 +219,8 @@ async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
     const info = await transporter.sendMail({
       from: `"Boolok AI" <${gmailUser}>`,
       to: toEmail,
-      subject: `Your Boolok AI Verification Code: ${otp}`,
-      text: `Your Boolok AI verification code is: ${otp}. This code expires in 10 minutes.`,
+      subject: 'Your Boolok AI Verification Code',
+      text: `Your Boolok AI verification code is: ${otp}. This code expires in 5 minutes.`,
       html: htmlBody,
     });
 
@@ -240,7 +240,7 @@ async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
         from: `"Boolok AI" <${gmailUser}>`,
         to: toEmail,
         subject: `Your Boolok AI Verification Code: ${otp}`,
-        text: `Your Boolok AI verification code is: ${otp}. This code expires in 10 minutes.`,
+        text: `Your Boolok AI verification code is: ${otp}. This code expires in 5 minutes.`,
         html: htmlBody,
       });
       console.log(`[nodemailer-fallback] OTP email sent to ${toEmail}: ${info.messageId}`);
@@ -309,7 +309,7 @@ router.post('/send-otp', async (req, res) => {
     const otp = generateOtp();
     await storeOtp(email, otp, 'email');
 
-    console.log(`[auth] Email registration 6-digit OTP for ${email}: ${otp}`);
+    console.log(`[auth] Email registration OTP requested for ${email.slice(0, 3)}***`);
 
     // Send real email via Gmail SMTP / Resend
     const emailSent = await sendOtpEmail(email, otp, 'Account Registration');
@@ -365,7 +365,7 @@ router.post('/send-phone-otp', async (req, res) => {
     const otp = generateOtp();
     await storeOtp(phone, otp, 'phone');
 
-    console.log(`[auth] Mobile verification 6-digit OTP for ${phone}: ${otp}`);
+    console.log(`[auth] Mobile verification OTP requested for phone ***${phone.slice(-4)}`);
 
     const phoneResult = await sendPhoneOtp(phone, otp);
 
@@ -420,7 +420,7 @@ router.post('/send-login-otp', async (req, res) => {
     const otp = generateOtp();
     storeOtp(email, otp);
 
-    console.log(`[auth] Login 6-digit OTP generated for ${email}: ${otp}`);
+    console.log(`[auth] Login OTP requested for ${email.slice(0, 3)}***`);
 
     // Send real email via Gmail SMTP
     const emailSent = await sendOtpEmail(email, otp, 'Account Sign-In');
@@ -615,7 +615,7 @@ router.post('/forgot-password', async (req, res) => {
 
     const otp = generateOtp();
     storeOtp(email, otp);
-    console.log(`[auth] Password reset 6-digit OTP for ${email}: ${otp}`);
+    console.log(`[auth] Password reset OTP requested for ${email.slice(0, 3)}***`);
 
     const emailSent = await sendOtpEmail(email, otp, 'Password Reset');
     if (!emailSent && !process.env.GMAIL_APP_PASSWORD) {

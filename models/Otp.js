@@ -19,11 +19,11 @@ const otpSchema = new mongoose.Schema(
       enum: ['email', 'phone', 'login', 'register'],
       default: 'register',
     },
-    // TTL index: Document will automatically be removed from MongoDB after 600 seconds (10 minutes)
+    // TTL index: Document will automatically be removed from MongoDB after 300 seconds (5 minutes)
     createdAt: {
       type: Date,
       default: Date.now,
-      expires: 600,
+      expires: 300,
     },
   },
   { timestamps: true }
