@@ -139,7 +139,7 @@ const FALLBACK_COMMUNITY_POSTS = [
   },
   {
     _id: 'akshat-p-1',
-    content: 'Modern commercial tower with multi-level parking, 100% power backup, and prime expressway frontage. Institutional Grade-A Office Hub — 120,000 sq ft · 8.9% Yield · OMR IT Corridor.',
+    content: 'Modern commercial tower with multi-level parking, 100% power backup, and prime expressway frontage. Institutional Grade-A Office Hub — 120,000 sq ft · 8.9% Yield · OMR IT Corridor · ₹292.3 Cr.',
     mediaUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
     author: { _id: 'the_akshtr_estate', fullName: 'Akshat Commercials', username: 'the_akshtr_estate', profilePicture: null, headline: 'Commercial Property & Tech Park Portfolio Lead @ Boolok Network', location: 'OMR IT Corridor, Chennai' },
     likes: ['sai', 'shreekutti', 'logeshwarana'],
@@ -173,7 +173,7 @@ const FALLBACK_COMMUNITY_POSTS = [
   },
   {
     _id: 'bava-p-1',
-    content: 'Double-height glass living room, customized Italian joinery, panoramic sea view balcony. High-Ceiling Ultra Penthouse — 5,800 sq ft · Private Elevator · Poes Garden, Chennai · $6,200,000.',
+    content: 'Double-height glass living room, customized Italian joinery, panoramic sea view balcony. High-Ceiling Ultra Penthouse — 5,800 sq ft · Private Elevator · Poes Garden, Chennai · ₹51.8 Cr.',
     mediaUrl: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200',
     author: { _id: 'bavadharini_rs', fullName: 'Bavadharini RS', username: 'bavadharini_rs', profilePicture: null, headline: 'Interior Designer & Modern Living Specialist', location: 'Chennai, Tamil Nadu' },
     likes: ['sai', 'ajmal', 'logeshwarana'],

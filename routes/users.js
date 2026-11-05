@@ -991,7 +991,7 @@ const COMMUNITY_DEALS = {
       id: 'd-shree-4',
       title: 'Electronic City Tech Hub Block B',
       location: 'Electronic City, Bangalore',
-      price: '$14,800,000',
+      price: '₹123.6 Cr',
       capRate: '9.0% Cap Rate',
       type: 'Commercial Office Tower',
       date: 'Jan 2026',
@@ -1512,7 +1512,7 @@ const COMMUNITY_POSTS_MAP = {
     {
       _id: 'bava-p-1',
       title: 'High-Ceiling Ultra Penthouse',
-      price: '$6,200,000',
+      price: '₹51.8 Cr',
       location: 'Chennai, Tamil Nadu',
       specs: '5,800 sq ft · Private Elevator',
       content: 'Double-height glass living room, customized Italian joinery, panoramic sea view balcony.',
@@ -1528,7 +1528,7 @@ const COMMUNITY_POSTS_MAP = {
     {
       _id: 'akshat-p-1',
       title: 'Institutional Grade-A Office Hub',
-      price: '$35,000,000',
+      price: '₹292.3 Cr',
       location: 'OMR IT Corridor, Chennai',
       specs: '120,000 sq ft · 8.9% Yield',
       content: 'Modern commercial tower with multi-level parking, 100% power backup, and prime expressway frontage.',
