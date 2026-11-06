@@ -182,7 +182,8 @@ router.get('/search', async (req, res) => {
     const users = await User.find({
       $and: [
         // Exclude the advisor placeholder user from all search results
-        { username: { $nin: ['advisor'] } },
+        { username: { $nin: ['advisor', 'mithulan_r_archived'] } },
+        { isArchived: { $ne: true } },
         { fullName: { $not: /^Advisor$/i } },
         {
           $or: [
@@ -228,7 +229,7 @@ router.get('/search', async (req, res) => {
     }
 
     // Filter out blacklisted/duplicate legacy usernames
-    const BANNED_SEARCH_USERNAMES = new Set(['aswin.realty', 'aswin_realty', 'ig_vicky16', 'ig_vicky.16', 'vicky', 'vicky_luxury', 'yashwanth_realty', 'cinemahub.live', 'cinemahub', 'advisor']);
+    const BANNED_SEARCH_USERNAMES = new Set(['aswin.realty', 'aswin_realty', 'ig_vicky16', 'ig_vicky.16', 'vicky', 'vicky_luxury', 'yashwanth_realty', 'cinemahub.live', 'cinemahub', 'advisor', 'mithulan_r_archived', 'mithulan_r', 'mithulanmass']);
     const filteredResults = results.filter((r) => {
       const u = (r.username || '').toLowerCase();
       const fn = (r.fullName || '').toLowerCase();
