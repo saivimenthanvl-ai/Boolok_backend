@@ -829,8 +829,8 @@ router.post('/google', async (req, res) => {
     const token = createToken(user);
     return res.status(200).json({ token, user: sanitizeUser(user) });
   } catch (error) {
-    console.error('Google sign-in error:', error);
-    return res.status(401).json({ message: 'Google sign-in failed.', error: error.message });
+    console.error('Google sign-in unexpected server error:', error);
+    return res.status(500).json({ message: 'Internal server error during Google sign-in.' });
   }
 });
 
