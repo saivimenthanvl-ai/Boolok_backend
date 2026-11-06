@@ -288,10 +288,13 @@ function createToken(user) {
 }
 
 function sanitizeUser(user) {
+  const rawName = (user.fullName || '').trim();
+  const rawUname = (user.username || '').toLowerCase();
+  const canonicalFullName = (rawUname === 'saivimenthanvl' || rawUname === 'saivimenthan' || rawName.toLowerCase() === 'sai' || rawName.toLowerCase() === 'sai vimenthan') ? 'Sai Vimenthan V L' : rawName;
   return {
     id: user._id.toString(),
     _id: user._id.toString(),
-    fullName: user.fullName,
+    fullName: canonicalFullName,
     username: user.username || user.fullName?.replace(/\s+/g, '').toLowerCase() || 'user',
     email: user.email,
     phoneNumber: user.phoneNumber || null,

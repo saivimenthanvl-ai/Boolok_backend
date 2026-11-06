@@ -115,6 +115,8 @@ app.use('/api/reels', require('./routes/reels'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/blueprint', require('./routes/blueprint'));
+app.use('/api/legal', require('./routes/legal'));
 
 /*
  * Public uploaded files with Cross-Origin and Range header support
@@ -408,8 +410,27 @@ async function startServer() {
       connectOptions.family = 4;
     }
 
+    // TEST SAFETY CHECK: If running in test mode or TEST_ONLY_LOOPBACK is true, refuse any non-loopback host
+    if (process.env.TEST_ONLY_LOOPBACK === 'true' || process.env.NODE_ENV === 'test') {
+      const parsedUrl = new URL(mongoUri.startsWith('mongodb://') || mongoUri.startsWith('mongodb+srv://') ? mongoUri.replace('mongodb+srv://', 'http://').replace('mongodb://', 'http://') : `http://${mongoUri}`);
+      const hostname = parsedUrl.hostname.toLowerCase();
+      const isLoopback = hostname === '127.0.0.1' || hostname === 'localhost' || hostname === '::1';
+      if (!isLoopback) {
+        throw new Error(`TEST MODE SAFETY REFUSAL: Refusing to start because MongoDB host "${hostname}" is not loopback (127.0.0.1/localhost).`);
+      }
+      console.log(`[TEST-SAFETY-CHECK-PASSED] Verified MongoDB host "${hostname}" is strict loopback.`);
+    }
+
     await mongoose.connect(mongoUri, connectOptions);
     console.log(`MongoDB connected: ${mongoose.connection.host}`);
+
+    if (process.env.TEST_ONLY_LOOPBACK === 'true' || process.env.NODE_ENV === 'test') {
+      const connectedHost = (mongoose.connection.host || '').toLowerCase();
+      if (connectedHost !== '127.0.0.1' && connectedHost !== 'localhost' && connectedHost !== '::1') {
+        await mongoose.connection.close();
+        throw new Error(`TEST MODE POST-CONNECT SAFETY REFUSAL: Connected host "${connectedHost}" is not loopback! Connection terminated.`);
+      }
+    }
   } catch (error) {
     console.error('SERVER STARTUP ERROR:', error.message);
     process.exit(1);
