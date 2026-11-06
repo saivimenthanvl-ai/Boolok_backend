@@ -177,7 +177,8 @@ router.get('/search', async (req, res) => {
       }
     } catch (_) { }
 
-    const regex = new RegExp(q, 'i');
+    const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedQuery, 'i');
 
     const users = await User.find({
       $and: [
