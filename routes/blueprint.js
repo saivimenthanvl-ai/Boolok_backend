@@ -581,12 +581,12 @@ function render2DFloorPlanSvg(model) {
   const len = (ft) => +(ft * scale).toFixed(1);
 
   const categoryFills = {
-    private: '#FEF3C7',
-    public: '#FFEDD5',
-    wet: '#E0F2FE',
+    private: 'url(#woodFloorPat)',
+    public: 'url(#livingFloorPat)',
+    wet: 'url(#wetTilePat)',
     circulation: '#F8FAFC',
     service: '#F1F5F9',
-    parking: '#E2E8F0',
+    parking: 'url(#parkingPat)',
   };
 
   let roomElements = '';
@@ -603,97 +603,134 @@ function render2DFloorPlanSvg(model) {
     // Room fill & CAD double-line wall
     roomElements += `
       <g>
-        <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" fill="${fill}" stroke="#0F172A" stroke-width="${r.isSemiOpen ? '2.5' : '6'}" ${r.isSemiOpen ? 'stroke-dasharray="9 5"' : ''}/>
-        <rect x="${+(rx + 3.5).toFixed(1)}" y="${+(ry + 3.5).toFixed(1)}" width="${Math.max(2, +(rw - 7).toFixed(1))}" height="${Math.max(2, +(rh - 7).toFixed(1))}" fill="none" stroke="#334155" stroke-opacity="0.45" stroke-width="1.2"/>
+        <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" fill="${fill}" stroke="#0F172A" stroke-width="${r.isSemiOpen ? '2.5' : '6.5'}" ${r.isSemiOpen ? 'stroke-dasharray="9 5"' : ''}/>
+        <rect x="${+(rx + 3.2).toFixed(1)}" y="${+(ry + 3.2).toFixed(1)}" width="${Math.max(2, +(rw - 6.4).toFixed(1))}" height="${Math.max(2, +(rh - 6.4).toFixed(1))}" fill="none" stroke="#1E293B" stroke-opacity="0.65" stroke-width="1.3"/>
     `;
 
-    // Architectural top-down furniture & fixture symbols
+    // Rich architectural top-down furnished interior layout
     if (r.furniture === 'bed_double' && rw > 60 && rh > 60) {
-      const bw = Math.min(54, rw * 0.42);
-      const bh = Math.min(60, rh * 0.46);
-      const bx = +(rx + 12).toFixed(1);
-      const by = +(ry + 12).toFixed(1);
+      const bw = Math.min(58, rw * 0.44);
+      const bh = Math.min(64, rh * 0.48);
+      const bx = +(rx + 18).toFixed(1);
+      const by = +(ry + 10).toFixed(1);
+      const rugX = +(bx - 6).toFixed(1);
+      const rugY = +(by + 14).toFixed(1);
+      const rugW = +(bw + 12).toFixed(1);
+      const rugH = +(bh - 6).toFixed(1);
       roomElements += `
-        <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="3" fill="#FFFBEB" stroke="#78350F" stroke-width="1.5"/>
-        <rect x="${bx}" y="${by}" width="${bw}" height="6" fill="#92400E"/>
-        <rect x="${+(bx + 5).toFixed(1)}" y="${+(by + 8).toFixed(1)}" width="${+(bw / 2 - 7).toFixed(1)}" height="11" rx="2" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
-        <rect x="${+(bx + bw / 2 + 2).toFixed(1)}" y="${+(by + 8).toFixed(1)}" width="${+(bw / 2 - 7).toFixed(1)}" height="11" rx="2" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
-        <line x1="${bx}" y1="${+(by + 24).toFixed(1)}" x2="${+(bx + bw).toFixed(1)}" y2="${+(by + 24).toFixed(1)}" stroke="#B45309" stroke-width="1.1"/>
-        <rect x="${+(rx + rw - 18).toFixed(1)}" y="${+(ry + 12).toFixed(1)}" width="10" height="${Math.min(48, +(rh * 0.42).toFixed(1))}" fill="#FDE68A" stroke="#78350F" stroke-width="1.2"/>
+        <rect x="${rugX}" y="${rugY}" width="${rugW}" height="${rugH}" rx="4" fill="#FDE68A" fill-opacity="0.55" stroke="#D97706" stroke-width="1" stroke-dasharray="3 2"/>
+        <rect x="${+(bx - 9).toFixed(1)}" y="${by}" width="7" height="8" rx="1.5" fill="#92400E" stroke="#451A03" stroke-width="1"/>
+        <circle cx="${+(bx - 5.5).toFixed(1)}" cy="${+(by + 4).toFixed(1)}" r="2" fill="#FEF08A"/>
+        <rect x="${+(bx + bw + 2).toFixed(1)}" y="${by}" width="7" height="8" rx="1.5" fill="#92400E" stroke="#451A03" stroke-width="1"/>
+        <circle cx="${+(bx + bw + 5.5).toFixed(1)}" cy="${+(by + 4).toFixed(1)}" r="2" fill="#FEF08A"/>
+        <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="3.5" fill="#FFFBEB" stroke="#78350F" stroke-width="1.6"/>
+        <rect x="${bx}" y="${by}" width="${bw}" height="6.5" fill="#78350F"/>
+        <rect x="${+(bx + 4).toFixed(1)}" y="${+(by + 8).toFixed(1)}" width="${+(bw / 2 - 6).toFixed(1)}" height="11" rx="2.5" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
+        <rect x="${+(bx + bw / 2 + 2).toFixed(1)}" y="${+(by + 8).toFixed(1)}" width="${+(bw / 2 - 6).toFixed(1)}" height="11" rx="2.5" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
+        <rect x="${+(bx + 2).toFixed(1)}" y="${+(by + 22).toFixed(1)}" width="${+(bw - 4).toFixed(1)}" height="${+(bh - 24).toFixed(1)}" rx="2.5" fill="#F59E0B" fill-opacity="0.32" stroke="#B45309" stroke-width="1.1"/>
+        <line x1="${bx}" y1="${+(by + 25).toFixed(1)}" x2="${+(bx + bw).toFixed(1)}" y2="${+(by + 25).toFixed(1)}" stroke="#B45309" stroke-width="1.2"/>
+        <rect x="${+(rx + rw - 16).toFixed(1)}" y="${+(ry + 10).toFixed(1)}" width="10" height="${Math.min(54, +(rh * 0.46).toFixed(1))}" rx="1.5" fill="#D97706" fill-opacity="0.4" stroke="#78350F" stroke-width="1.3"/>
+        <line x1="${+(rx + rw - 11).toFixed(1)}" y1="${+(ry + 10).toFixed(1)}" x2="${+(rx + rw - 11).toFixed(1)}" y2="${+(ry + 10 + Math.min(54, +(rh * 0.46).toFixed(1))).toFixed(1)}" stroke="#78350F" stroke-width="0.9"/>
       `;
     } else if (r.furniture === 'bed_twin' && rw > 55 && rh > 55) {
-      const bw = Math.min(44, rw * 0.38);
-      const bh = Math.min(52, rh * 0.44);
+      const bw = Math.min(46, rw * 0.40);
+      const bh = Math.min(54, rh * 0.46);
       const bx = +(rx + rw - bw - 12).toFixed(1);
-      const by = +(ry + 12).toFixed(1);
+      const by = +(ry + 10).toFixed(1);
       roomElements += `
+        <rect x="${+(bx - 4).toFixed(1)}" y="${+(by + 12).toFixed(1)}" width="${+(bw + 8).toFixed(1)}" height="${+(bh - 6).toFixed(1)}" rx="3" fill="#BAE6FD" fill-opacity="0.45" stroke="#0284C7" stroke-width="0.9" stroke-dasharray="3 2"/>
+        <rect x="${+(bx - 8).toFixed(1)}" y="${by}" width="6.5" height="7.5" rx="1.5" fill="#92400E" stroke="#451A03" stroke-width="1"/>
         <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="3" fill="#FFFBEB" stroke="#78350F" stroke-width="1.5"/>
-        <rect x="${bx}" y="${by}" width="${bw}" height="5" fill="#92400E"/>
-        <rect x="${+(bx + 6).toFixed(1)}" y="${+(by + 7).toFixed(1)}" width="${+(bw - 12).toFixed(1)}" height="10" rx="2" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
-        <rect x="${+(rx + 10).toFixed(1)}" y="${+(ry + 12).toFixed(1)}" width="10" height="${Math.min(42, +(rh * 0.38).toFixed(1))}" fill="#FDE68A" stroke="#78350F" stroke-width="1.2"/>
+        <rect x="${bx}" y="${by}" width="${bw}" height="5.5" fill="#78350F"/>
+        <rect x="${+(bx + 5).toFixed(1)}" y="${+(by + 7.5).toFixed(1)}" width="${+(bw - 10).toFixed(1)}" height="10" rx="2" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
+        <rect x="${+(bx + 2).toFixed(1)}" y="${+(by + 20).toFixed(1)}" width="${+(bw - 4).toFixed(1)}" height="${+(bh - 22).toFixed(1)}" rx="2" fill="#38BDF8" fill-opacity="0.28" stroke="#0284C7" stroke-width="1"/>
+        <rect x="${+(rx + 8).toFixed(1)}" y="${+(ry + 10).toFixed(1)}" width="10" height="${Math.min(44, +(rh * 0.40).toFixed(1))}" rx="1.5" fill="#D97706" fill-opacity="0.4" stroke="#78350F" stroke-width="1.2"/>
       `;
     } else if (r.furniture === 'living_sofa' && rw > 65 && rh > 65) {
-      const sw = Math.min(68, rw * 0.48);
+      const sw = Math.min(76, rw * 0.52);
       const sh = Math.min(22, rh * 0.22);
-      const sx = +(rx + 14).toFixed(1);
-      const sy = +(ry + 14).toFixed(1);
+      const sx = +(rx + 12).toFixed(1);
+      const sy = +(ry + 10).toFixed(1);
+      const lArmH = Math.min(48, +(rh * 0.42).toFixed(1));
       roomElements += `
-        <rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="3" fill="#FED7AA" stroke="#9A3412" stroke-width="1.5"/>
-        <rect x="${sx}" y="${sy}" width="18" height="${Math.min(44, +(rh * 0.38).toFixed(1))}" rx="3" fill="#FED7AA" stroke="#9A3412" stroke-width="1.5"/>
-        <rect x="${+(sx + 24).toFixed(1)}" y="${+(sy + sh + 6).toFixed(1)}" width="${Math.max(18, +(sw - 28).toFixed(1))}" height="14" rx="2" fill="#FFEDD5" stroke="#9A3412" stroke-width="1.2"/>
+        <rect x="${+(sx + 16).toFixed(1)}" y="${+(sy + sh + 3).toFixed(1)}" width="${Math.max(24, +(sw - 16).toFixed(1))}" height="24" rx="3" fill="#FED7AA" fill-opacity="0.55" stroke="#C2410C" stroke-width="0.9" stroke-dasharray="3 2"/>
+        <rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="3.5" fill="#FDBA74" stroke="#9A3412" stroke-width="1.5"/>
+        <rect x="${sx}" y="${sy}" width="${sw}" height="5" rx="1.5" fill="#9A3412"/>
+        <rect x="${sx}" y="${sy}" width="18" height="${lArmH}" rx="3.5" fill="#FDBA74" stroke="#9A3412" stroke-width="1.5"/>
+        <rect x="${sx}" y="${sy}" width="5" height="${lArmH}" rx="1.5" fill="#9A3412"/>
+        <line x1="${+(sx + sw * 0.38).toFixed(1)}" y1="${+(sy + 5).toFixed(1)}" x2="${+(sx + sw * 0.38).toFixed(1)}" y2="${+(sy + sh).toFixed(1)}" stroke="#9A3412" stroke-width="1"/>
+        <line x1="${+(sx + sw * 0.68).toFixed(1)}" y1="${+(sy + 5).toFixed(1)}" x2="${+(sx + sw * 0.68).toFixed(1)}" y2="${+(sy + sh).toFixed(1)}" stroke="#9A3412" stroke-width="1"/>
+        <rect x="${+(sx + 24).toFixed(1)}" y="${+(sy + sh + 7).toFixed(1)}" width="${Math.max(20, +(sw - 30).toFixed(1))}" height="15" rx="2.5" fill="#FFF7ED" stroke="#9A3412" stroke-width="1.3"/>
+        <circle cx="${+(sx + 34).toFixed(1)}" cy="${+(sy + sh + 14.5).toFixed(1)}" r="3.2" fill="#F59E0B" stroke="#78350F" stroke-width="0.8"/>
+        <rect x="${+(rx + rw - 14).toFixed(1)}" y="${+(ry + 14).toFixed(1)}" width="7" height="${Math.min(44, +(rh * 0.38).toFixed(1))}" rx="1.5" fill="#334155" stroke="#0F172A" stroke-width="1"/>
+        <circle cx="${+(rx + rw - 16).toFixed(1)}" cy="${+(ry + rh - 14).toFixed(1)}" r="6" fill="#22C55E" fill-opacity="0.75" stroke="#15803D" stroke-width="1.2"/>
       `;
     } else if (r.furniture === 'dining_table' && rw > 60 && rh > 55) {
-      const tw = Math.min(50, rw * 0.36);
-      const th = Math.min(30, rh * 0.32);
+      const tw = Math.min(54, rw * 0.40);
+      const th = Math.min(32, rh * 0.34);
       const tx = +(rx + 14).toFixed(1);
-      const ty = +(ry + 14).toFixed(1);
+      const ty = +(ry + 12).toFixed(1);
       roomElements += `
-        <rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="4" fill="#FDE68A" stroke="#92400E" stroke-width="1.5"/>
-        <rect x="${+(tx + 6).toFixed(1)}" y="${+(ty - 5).toFixed(1)}" width="10" height="4" rx="1" fill="#B45309"/>
-        <rect x="${+(tx + tw - 16).toFixed(1)}" y="${+(ty - 5).toFixed(1)}" width="10" height="4" rx="1" fill="#B45309"/>
-        <rect x="${+(tx + 6).toFixed(1)}" y="${+(ty + th + 1).toFixed(1)}" width="10" height="4" rx="1" fill="#B45309"/>
-        <rect x="${+(tx + tw - 16).toFixed(1)}" y="${+(ty + th + 1).toFixed(1)}" width="10" height="4" rx="1" fill="#B45309"/>
+        <rect x="${+(tx - 5).toFixed(1)}" y="${+(ty - 6).toFixed(1)}" width="${+(tw + 10).toFixed(1)}" height="${+(th + 12).toFixed(1)}" rx="4" fill="#FEF3C7" fill-opacity="0.6" stroke="#D97706" stroke-width="0.8"/>
+        <rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="4.5" fill="#FDE68A" stroke="#78350F" stroke-width="1.6"/>
+        <circle cx="${+(tx + tw / 2).toFixed(1)}" cy="${+(ty + th / 2).toFixed(1)}" r="4" fill="#F59E0B" stroke="#78350F" stroke-width="1"/>
+        <rect x="${+(tx + 5).toFixed(1)}" y="${+(ty - 5).toFixed(1)}" width="10" height="4" rx="1.5" fill="#92400E"/>
+        <rect x="${+(tx + tw / 2 - 5).toFixed(1)}" y="${+(ty - 5).toFixed(1)}" width="10" height="4" rx="1.5" fill="#92400E"/>
+        <rect x="${+(tx + tw - 15).toFixed(1)}" y="${+(ty - 5).toFixed(1)}" width="10" height="4" rx="1.5" fill="#92400E"/>
+        <rect x="${+(tx + 5).toFixed(1)}" y="${+(ty + th + 1).toFixed(1)}" width="10" height="4" rx="1.5" fill="#92400E"/>
+        <rect x="${+(tx + tw / 2 - 5).toFixed(1)}" y="${+(ty + th + 1).toFixed(1)}" width="10" height="4" rx="1.5" fill="#92400E"/>
+        <rect x="${+(tx + tw - 15).toFixed(1)}" y="${+(ty + th + 1).toFixed(1)}" width="10" height="4" rx="1.5" fill="#92400E"/>
       `;
     } else if (r.furniture === 'kitchen_counter' && rw > 50 && rh > 50) {
-      const cDepth = Math.min(16, rw * 0.16);
+      const cDepth = Math.min(18, rw * 0.18);
       roomElements += `
-        <path d="M ${+(rx + rw - cDepth - 6).toFixed(1)} ${+(ry + 8).toFixed(1)} H ${+(rx + rw - 6).toFixed(1)} V ${+(ry + rh - 8).toFixed(1)} H ${+(rx + 12).toFixed(1)} V ${+(ry + rh - cDepth - 8).toFixed(1)} H ${+(rx + rw - cDepth - 6).toFixed(1)} Z" fill="#CBD5E1" stroke="#334155" stroke-width="1.5"/>
-        <rect x="${+(rx + rw - cDepth - 4).toFixed(1)}" y="${+(ry + 18).toFixed(1)}" width="${Math.max(8, +(cDepth - 4).toFixed(1))}" height="16" rx="2" fill="#E0F2FE" stroke="#0369A1" stroke-width="1.2"/>
-        <circle cx="${+(rx + 28).toFixed(1)}" cy="${+(ry + rh - cDepth / 2 - 8).toFixed(1)}" r="3.2" fill="none" stroke="#0F172A" stroke-width="1.2"/>
-        <circle cx="${+(rx + 38).toFixed(1)}" cy="${+(ry + rh - cDepth / 2 - 8).toFixed(1)}" r="3.2" fill="none" stroke="#0F172A" stroke-width="1.2"/>
+        <path d="M ${+(rx + rw - cDepth - 6).toFixed(1)} ${+(ry + 8).toFixed(1)} H ${+(rx + rw - 6).toFixed(1)} V ${+(ry + rh - 8).toFixed(1)} H ${+(rx + 10).toFixed(1)} V ${+(ry + rh - cDepth - 8).toFixed(1)} H ${+(rx + rw - cDepth - 6).toFixed(1)} Z" fill="#E2E8F0" stroke="#334155" stroke-width="1.6"/>
+        <rect x="${+(rx + rw - cDepth - 4).toFixed(1)}" y="${+(ry + 16).toFixed(1)}" width="${Math.max(8, +(cDepth - 4).toFixed(1))}" height="10" rx="1.5" fill="#BAE6FD" stroke="#0284C7" stroke-width="1.2"/>
+        <rect x="${+(rx + rw - cDepth - 4).toFixed(1)}" y="${+(ry + 28).toFixed(1)}" width="${Math.max(8, +(cDepth - 4).toFixed(1))}" height="10" rx="1.5" fill="#BAE6FD" stroke="#0284C7" stroke-width="1.2"/>
+        <rect x="${+(rx + 18).toFixed(1)}" y="${+(ry + rh - cDepth - 6).toFixed(1)}" width="24" height="${Math.max(8, +(cDepth - 4).toFixed(1))}" rx="2" fill="#1E293B" stroke="#0F172A" stroke-width="1"/>
+        <circle cx="${+(rx + 24).toFixed(1)}" cy="${+(ry + rh - cDepth / 2 - 8).toFixed(1)}" r="2.6" fill="none" stroke="#F8FAFC" stroke-width="1.1"/>
+        <circle cx="${+(rx + 35).toFixed(1)}" cy="${+(ry + rh - cDepth / 2 - 8).toFixed(1)}" r="2.6" fill="none" stroke="#F8FAFC" stroke-width="1.1"/>
+        <rect x="${+(rx + 10).toFixed(1)}" y="${+(ry + 8).toFixed(1)}" width="14" height="14" rx="2" fill="#CBD5E1" stroke="#334155" stroke-width="1.4"/>
       `;
     } else if (r.furniture === 'bath_fixtures' && rw > 42 && rh > 36) {
       roomElements += `
-        <rect x="${+(rx + 8).toFixed(1)}" y="${+(ry + 8).toFixed(1)}" width="14" height="10" rx="3" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.3"/>
-        <ellipse cx="${+(rx + rw - 15).toFixed(1)}" cy="${+(ry + 14).toFixed(1)}" rx="6" ry="8" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.3"/>
+        <rect x="${+(rx + 7).toFixed(1)}" y="${+(ry + 7).toFixed(1)}" width="16" height="11" rx="3" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.4"/>
+        <circle cx="${+(rx + 15).toFixed(1)}" cy="${+(ry + 12.5).toFixed(1)}" r="2" fill="#38BDF8"/>
+        <rect x="${+(rx + rw - 21).toFixed(1)}" y="${+(ry + 6).toFixed(1)}" width="12" height="5" rx="1.5" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.2"/>
+        <ellipse cx="${+(rx + rw - 15).toFixed(1)}" cy="${+(ry + 16).toFixed(1)}" rx="5.5" ry="7.5" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.4"/>
+        <rect x="${+(rx + rw - 26).toFixed(1)}" y="${+(ry + rh - 22).toFixed(1)}" width="18" height="15" rx="2" fill="#E0F2FE" fill-opacity="0.7" stroke="#0284C7" stroke-width="1.1" stroke-dasharray="3 2"/>
       `;
     } else if (r.furniture === 'wardrobe' && rw > 40 && rh > 30) {
       roomElements += `
-        <rect x="${+(rx + 8).toFixed(1)}" y="${+(ry + 7).toFixed(1)}" width="${Math.max(16, +(rw - 16).toFixed(1))}" height="9" fill="#FDE68A" stroke="#78350F" stroke-width="1.2"/>
+        <rect x="${+(rx + 8).toFixed(1)}" y="${+(ry + 7).toFixed(1)}" width="${Math.max(16, +(rw - 16).toFixed(1))}" height="10" fill="#FDE68A" stroke="#78350F" stroke-width="1.3"/>
       `;
     } else if (r.furniture === 'stairs' && rw > 45 && rh > 30) {
-      const sW = Math.min(54, rw * 0.45);
-      const sH = Math.min(20, rh * 0.42);
+      const sW = Math.min(58, rw * 0.48);
+      const sH = Math.min(22, rh * 0.44);
       const sx = +(rx + rw - sW - 10).toFixed(1);
       const sy = +(ry + 8).toFixed(1);
       roomElements += `
-        <rect x="${sx}" y="${sy}" width="${sW}" height="${sH}" fill="#E2E8F0" stroke="#334155" stroke-width="1.3"/>
-        <line x1="${+(sx + sW * 0.25).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.25).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1"/>
-        <line x1="${+(sx + sW * 0.5).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.5).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1"/>
-        <line x1="${+(sx + sW * 0.75).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.75).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1"/>
+        <rect x="${sx}" y="${sy}" width="${sW}" height="${sH}" fill="#E2E8F0" stroke="#334155" stroke-width="1.4"/>
+        <line x1="${+(sx + sW * 0.2).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.2).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1.1"/>
+        <line x1="${+(sx + sW * 0.4).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.4).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1.1"/>
+        <line x1="${+(sx + sW * 0.6).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.6).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1.1"/>
+        <line x1="${+(sx + sW * 0.8).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.8).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1.1"/>
+        <line x1="${+(sx + 4).toFixed(1)}" y1="${+(sy + sH / 2).toFixed(1)}" x2="${+(sx + sW - 4).toFixed(1)}" y2="${+(sy + sH / 2).toFixed(1)}" stroke="#B45309" stroke-width="1.2"/>
       `;
     } else if (r.furniture === 'pooja' && rw > 40 && rh > 30) {
       roomElements += `
-        <rect x="${+(rx + rw - 24).toFixed(1)}" y="${+(ry + 8).toFixed(1)}" width="14" height="14" rx="2" fill="#FEF08A" stroke="#B45309" stroke-width="1.3"/>
+        <rect x="${+(rx + rw - 24).toFixed(1)}" y="${+(ry + 8).toFixed(1)}" width="15" height="15" rx="2.5" fill="#FEF08A" stroke="#B45309" stroke-width="1.4"/>
+        <circle cx="${+(rx + rw - 16.5).toFixed(1)}" cy="${+(ry + 15.5).toFixed(1)}" r="3.5" fill="#F59E0B"/>
       `;
     } else if (r.furniture === 'car_bay' && rw > 55 && rh > 80) {
-      const cw = Math.min(48, rw * 0.54);
-      const ch = Math.min(86, rh * 0.58);
+      const cw = Math.min(50, rw * 0.56);
+      const ch = Math.min(90, rh * 0.60);
       const carX = +(cx - cw / 2).toFixed(1);
-      const carY = +(ry + 14).toFixed(1);
+      const carY = +(ry + 12).toFixed(1);
       roomElements += `
-        <rect x="${carX}" y="${carY}" width="${cw}" height="${ch}" rx="9" fill="#F8FAFC" stroke="#475569" stroke-dasharray="5 3" stroke-width="1.6"/>
-        <rect x="${+(carX + 6).toFixed(1)}" y="${+(carY + 12).toFixed(1)}" width="${+(cw - 12).toFixed(1)}" height="${+(ch * 0.45).toFixed(1)}" rx="4" fill="#E2E8F0" stroke="#64748B" stroke-width="1.1"/>
+        <rect x="${carX}" y="${carY}" width="${cw}" height="${ch}" rx="10" fill="#E2E8F0" stroke="#334155" stroke-width="1.8"/>
+        <rect x="${+(carX + 5).toFixed(1)}" y="${+(carY + 14).toFixed(1)}" width="${+(cw - 10).toFixed(1)}" height="${+(ch * 0.48).toFixed(1)}" rx="5" fill="#BAE6FD" stroke="#0369A1" stroke-width="1.2"/>
+        <rect x="${+(carX + 8).toFixed(1)}" y="${+(carY + 22).toFixed(1)}" width="${+(cw - 16).toFixed(1)}" height="${+(ch * 0.28).toFixed(1)}" rx="3" fill="#F8FAFC" stroke="#475569" stroke-width="1"/>
       `;
     }
 
@@ -777,6 +814,25 @@ function render2DFloorPlanSvg(model) {
   <defs>
     <pattern id="cadGrid" width="25" height="25" patternUnits="userSpaceOnUse">
       <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#E2E8F0" stroke-width="0.9"/>
+    </pattern>
+    <pattern id="woodFloorPat" width="24" height="12" patternUnits="userSpaceOnUse">
+      <rect width="24" height="12" fill="#F5E6D3"/>
+      <line x1="0" y1="6" x2="24" y2="6" stroke="#E2C7A8" stroke-width="0.8"/>
+      <line x1="0" y1="12" x2="24" y2="12" stroke="#E2C7A8" stroke-width="0.8"/>
+      <line x1="12" y1="0" x2="12" y2="6" stroke="#E2C7A8" stroke-width="0.7"/>
+      <line x1="20" y1="6" x2="20" y2="12" stroke="#E2C7A8" stroke-width="0.7"/>
+    </pattern>
+    <pattern id="livingFloorPat" width="24" height="24" patternUnits="userSpaceOnUse">
+      <rect width="24" height="24" fill="#FDF6EC"/>
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#EADBC8" stroke-width="0.9"/>
+    </pattern>
+    <pattern id="wetTilePat" width="14" height="14" patternUnits="userSpaceOnUse">
+      <rect width="14" height="14" fill="#E0F2FE"/>
+      <path d="M 14 0 L 0 0 0 14" fill="none" stroke="#BAE6FD" stroke-width="0.9"/>
+    </pattern>
+    <pattern id="parkingPat" width="18" height="18" patternUnits="userSpaceOnUse">
+      <rect width="18" height="18" fill="#E2E8F0"/>
+      <path d="M 18 0 L 0 0 0 18" fill="none" stroke="#CBD5E1" stroke-width="1"/>
     </pattern>
   </defs>
 
@@ -921,9 +977,9 @@ function render3DCutawaySvg(model) {
   };
 
   const floorColors = {
-    private: '#D9B99B',
-    public: '#E6CCB2',
-    wet: '#BAE6FD',
+    private: 'url(#isoWoodFloor)',
+    public: 'url(#isoMarbleFloor)',
+    wet: 'url(#isoWetFloor)',
     circulation: '#E2E8F0',
     service: '#CBD5E1',
     parking: '#94A3B8',
@@ -961,7 +1017,8 @@ function render3DCutawaySvg(model) {
     const y0 = r.y;
     const x1 = +(r.x + r.width).toFixed(2);
     const y1 = +(r.y + r.depth).toFixed(2);
-    const h = r.isSemiOpen ? 4.2 : wallH;
+    const h = r.isSemiOpen ? 3.8 : wallH;
+    const frontCutH = r.isSemiOpen ? 1.8 : 2.6;
     const wallT = 0.65;
     const floorFill = floorColors[r.category] || '#E2E8F0';
 
@@ -972,86 +1029,104 @@ function render3DCutawaySvg(model) {
     const northWallPts = [isoPt(x0, y0, 0.2), isoPt(x1, y0, 0.2), isoPt(x1, y0, h), isoPt(x0, y0, h)];
     const westWallPts = [isoPt(x0, y0, 0.2), isoPt(x0, y1, 0.2), isoPt(x0, y1, h), isoPt(x0, y0, h)];
 
-    // Front-Right (East, x = x1) & Front-Left (South, y = y1) cutaway walls
-    const eastWallPts = [isoPt(x1, y0, 0.2), isoPt(x1, y1, 0.2), isoPt(x1, y1, h), isoPt(x1, y0, h)];
-    const southWallPts = [isoPt(x0, y1, 0.2), isoPt(x1, y1, 0.2), isoPt(x1, y1, h), isoPt(x0, y1, h)];
+    // Front-Right (East, x = x1) & Front-Left (South, y = y1) cutaway low walls
+    const eastWallPts = [isoPt(x1, y0, 0.2), isoPt(x1, y1, 0.2), isoPt(x1, y1, frontCutH), isoPt(x1, y0, frontCutH)];
+    const southWallPts = [isoPt(x0, y1, 0.2), isoPt(x1, y1, 0.2), isoPt(x1, y1, frontCutH), isoPt(x0, y1, frontCutH)];
 
     const northWallCap = [isoPt(x0, y0, h), isoPt(x1, y0, h), isoPt(x1, y0 + wallT, h), isoPt(x0, y0 + wallT, h)];
     const westWallCap = [isoPt(x0, y0, h), isoPt(x0 + wallT, y0, h), isoPt(x0 + wallT, y1, h), isoPt(x0, y1, h)];
+    const eastWallCap = [isoPt(x1 - wallT, y0, frontCutH), isoPt(x1, y0, frontCutH), isoPt(x1, y1, frontCutH), isoPt(x1 - wallT, y1, frontCutH)];
+    const southWallCap = [isoPt(x0, y1 - wallT, frontCutH), isoPt(x1, y1 - wallT, frontCutH), isoPt(x1, y1, frontCutH), isoPt(x0, y1, frontCutH)];
 
-    // Top wall cap outline at z = h
-    const topCapPts = [isoPt(x0, y0, h), isoPt(x1, y0, h), isoPt(x1, y1, h), isoPt(x0, y1, h)];
-
-    // Center point for room label at mid-height
-    const [cx, cy] = isoPt((x0 + x1) / 2, (y0 + y1) / 2, h * 0.48);
+    // Center point for room label at rear wall top
+    const [cx, cy] = isoPt((x0 + x1) / 2, y0 + r.depth * 0.28, h + 0.6);
 
     // 3D Volumetric Furniture inside room
     let furnSvg = '';
     if (r.furniture === 'bed_double' && r.width >= 7 && r.depth >= 7) {
-      const bx0 = x0 + 1.1;
-      const by0 = y0 + 0.9;
-      const bx1 = Math.min(x1 - 1.2, bx0 + 6.2);
-      const by1 = Math.min(y1 - 1.2, by0 + 6.5);
-      furnSvg += isoBox(bx0, by0, bx1, by0 + 0.5, 0.2, 3.8, '#78350F', '#451A03', '#5C2406');
-      furnSvg += isoBox(bx0, by0 + 0.5, bx1, by1, 0.2, 1.9, '#F8FAFC', '#CBD5E1', '#E2E8F0');
-      furnSvg += isoBox(bx0, by0 + 2.5, bx1, by1, 1.9, 2.05, '#F59E0B', '#B45309', '#D97706');
-      furnSvg += isoBox(bx0 + 0.5, by0 + 0.7, (bx0 + bx1) / 2 - 0.2, by0 + 1.8, 1.9, 2.3, '#FFFFFF', '#E2E8F0', '#F1F5F9');
-      furnSvg += isoBox((bx0 + bx1) / 2 + 0.2, by0 + 0.7, bx1 - 0.5, by0 + 1.8, 1.9, 2.3, '#FFFFFF', '#E2E8F0', '#F1F5F9');
-      if (x1 - bx1 > 2.2) {
-        furnSvg += isoBox(x1 - 1.8, y0 + 1.0, x1 - 0.3, Math.min(y1 - 1.0, y0 + 6.2), 0.2, 6.8, '#B45309', '#78350F', '#92400E');
+      const bx0 = x0 + 1.2;
+      const by0 = y0 + 0.85;
+      const bx1 = Math.min(x1 - 1.4, bx0 + 6.0);
+      const by1 = Math.min(y1 - 1.2, by0 + 6.4);
+      const rugPts = [isoPt(bx0 - 0.5, by0 + 1.0, 0.25), isoPt(bx1 + 0.5, by0 + 1.0, 0.25), isoPt(bx1 + 0.5, by1 + 0.5, 0.25), isoPt(bx0 - 0.5, by1 + 0.5, 0.25)];
+      furnSvg += `<polygon points="${polyStr(rugPts)}" fill="#FDE68A" fill-opacity="0.7" stroke="#D97706" stroke-width="0.9"/>`;
+      if (bx0 - x0 > 0.9) {
+        furnSvg += isoBox(x0 + 0.35, by0, bx0 - 0.15, by0 + 1.2, 0.2, 1.8, '#92400E', '#451A03', '#78350F');
+      }
+      furnSvg += isoBox(bx0, by0, bx1, by0 + 0.5, 0.2, 4.0, '#78350F', '#451A03', '#5C2406');
+      furnSvg += isoBox(bx0, by0 + 0.5, bx1, by1, 0.2, 1.9, '#FFFBEB', '#CBD5E1', '#E2E8F0');
+      furnSvg += isoBox(bx0 + 0.1, by0 + 2.2, bx1 - 0.1, by1, 1.9, 2.15, '#F59E0B', '#B45309', '#D97706');
+      furnSvg += isoBox(bx0 + 0.45, by0 + 0.7, (bx0 + bx1) / 2 - 0.15, by0 + 1.8, 1.9, 2.35, '#FFFFFF', '#CBD5E1', '#F1F5F9');
+      furnSvg += isoBox((bx0 + bx1) / 2 + 0.15, by0 + 0.7, bx1 - 0.45, by0 + 1.8, 1.9, 2.35, '#FFFFFF', '#CBD5E1', '#F1F5F9');
+      if (x1 - bx1 > 2.0) {
+        furnSvg += isoBox(x1 - 1.7, y0 + 0.9, x1 - 0.35, Math.min(y1 - 1.0, y0 + 6.2), 0.2, 6.8, '#B45309', '#78350F', '#92400E');
       }
     } else if (r.furniture === 'bed_twin' && r.width >= 6.5 && r.depth >= 6.5) {
       const bx0 = x0 + 1.0;
-      const by0 = y0 + 0.9;
+      const by0 = y0 + 0.85;
       const bx1 = Math.min(x1 - 1.0, bx0 + 4.8);
-      const by1 = Math.min(y1 - 1.0, by0 + 6.2);
-      furnSvg += isoBox(bx0, by0, bx1, by0 + 0.45, 0.2, 3.5, '#78350F', '#451A03', '#5C2406');
+      const by1 = Math.min(y1 - 1.0, by0 + 6.0);
+      const rugPts = [isoPt(bx0 - 0.4, by0 + 1.0, 0.25), isoPt(bx1 + 0.4, by0 + 1.0, 0.25), isoPt(bx1 + 0.4, by1 + 0.4, 0.25), isoPt(bx0 - 0.4, by1 + 0.4, 0.25)];
+      furnSvg += `<polygon points="${polyStr(rugPts)}" fill="#BAE6FD" fill-opacity="0.65" stroke="#0284C7" stroke-width="0.9"/>`;
+      furnSvg += isoBox(bx0, by0, bx1, by0 + 0.45, 0.2, 3.6, '#78350F', '#451A03', '#5C2406');
       furnSvg += isoBox(bx0, by0 + 0.45, bx1, by1, 0.2, 1.85, '#F8FAFC', '#CBD5E1', '#E2E8F0');
-      furnSvg += isoBox(bx0, by0 + 2.3, bx1, by1, 1.85, 2.0, '#38BDF8', '#0369A1', '#0284C7');
-      furnSvg += isoBox(bx0 + 0.6, by0 + 0.7, bx1 - 0.6, by0 + 1.7, 1.85, 2.25, '#FFFFFF', '#E2E8F0', '#F1F5F9');
+      furnSvg += isoBox(bx0 + 0.1, by0 + 2.1, bx1 - 0.1, by1, 1.85, 2.1, '#38BDF8', '#0369A1', '#0284C7');
+      furnSvg += isoBox(bx0 + 0.5, by0 + 0.7, bx1 - 0.5, by0 + 1.7, 1.85, 2.3, '#FFFFFF', '#E2E8F0', '#F1F5F9');
+      if (x1 - bx1 > 1.8) {
+        furnSvg += isoBox(x1 - 1.5, y0 + 0.9, x1 - 0.35, Math.min(y1 - 1.0, y0 + 5.2), 0.2, 6.4, '#B45309', '#78350F', '#92400E');
+      }
     } else if (r.furniture === 'living_sofa' && r.width >= 7 && r.depth >= 6.5) {
-      const sx0 = x0 + 1.2;
-      const sy0 = y0 + 1.1;
-      const sx1 = Math.min(x1 - 1.4, sx0 + 7.2);
+      const sx0 = x0 + 1.1;
+      const sy0 = y0 + 1.0;
+      const sx1 = Math.min(x1 - 1.4, sx0 + 7.4);
       const sy1 = Math.min(y1 - 1.4, sy0 + 2.8);
-      furnSvg += isoBox(sx0, sy0, sx1, sy0 + 0.7, 0.2, 2.9, '#B45309', '#78350F', '#92400E');
-      furnSvg += isoBox(sx0, sy0 + 0.7, sx1, sy1, 0.2, 1.6, '#F59E0B', '#B45309', '#D97706');
-      furnSvg += isoBox(sx0, sy1, sx0 + 2.4, Math.min(y1 - 1.2, sy1 + 3.2), 0.2, 1.6, '#F59E0B', '#B45309', '#D97706');
+      const rugPts = [isoPt(sx0 + 1.8, sy1 + 0.2, 0.25), isoPt(Math.min(x1 - 1.0, sx1 + 0.4), sy1 + 0.2, 0.25), isoPt(Math.min(x1 - 1.0, sx1 + 0.4), Math.min(y1 - 0.8, sy1 + 3.4), 0.25), isoPt(sx0 + 1.8, Math.min(y1 - 0.8, sy1 + 3.4), 0.25)];
+      furnSvg += `<polygon points="${polyStr(rugPts)}" fill="#FED7AA" fill-opacity="0.7" stroke="#C2410C" stroke-width="0.9"/>`;
+      furnSvg += isoBox(sx0, sy0, sx1, sy0 + 0.7, 0.2, 3.0, '#9A3412', '#431407', '#7C2D12');
+      furnSvg += isoBox(sx0, sy0 + 0.7, sx1, sy1, 0.2, 1.65, '#FB923C', '#C2410C', '#EA580C');
+      furnSvg += isoBox(sx0, sy1, sx0 + 2.4, Math.min(y1 - 1.1, sy1 + 3.4), 0.2, 1.65, '#FB923C', '#C2410C', '#EA580C');
       if (sy1 + 2.6 < y1 - 0.8) {
-        furnSvg += isoBox(sx0 + 3.0, sy1 + 0.8, Math.min(x1 - 1.5, sx0 + 6.4), sy1 + 2.4, 0.2, 1.3, '#E2E8F0', '#64748B', '#94A3B8');
+        furnSvg += isoBox(sx0 + 2.9, sy1 + 0.7, Math.min(x1 - 1.5, sx0 + 6.4), sy1 + 2.3, 0.2, 1.35, '#FFF7ED', '#78350F', '#92400E');
+      }
+      if (x1 - sx0 > 6.5) {
+        furnSvg += isoBox(x1 - 1.3, y0 + 1.8, x1 - 0.4, Math.min(y1 - 1.4, y0 + 6.0), 0.2, 2.2, '#334155', '#0F172A', '#1E293B');
       }
     } else if (r.furniture === 'dining_table' && r.width >= 6.5 && r.depth >= 6) {
       const tx0 = x0 + Math.max(1.4, r.width * 0.2);
       const ty0 = y0 + Math.max(1.2, r.depth * 0.22);
       const tx1 = Math.min(x1 - 1.4, tx0 + 5.6);
       const ty1 = Math.min(y1 - 1.2, ty0 + 3.4);
-      furnSvg += isoBox(tx0, ty0, tx1, ty1, 0.2, 2.5, '#D97706', '#78350F', '#92400E');
-      furnSvg += isoBox(tx0 + 0.6, ty0 - 0.7, tx0 + 1.8, ty0 - 0.1, 0.2, 1.6, '#FDE68A', '#92400E', '#B45309');
-      furnSvg += isoBox(tx1 - 1.8, ty0 - 0.7, tx1 - 0.6, ty0 - 0.1, 0.2, 1.6, '#FDE68A', '#92400E', '#B45309');
+      furnSvg += isoBox(tx0, ty0, tx1, ty1, 0.2, 2.55, '#F59E0B', '#78350F', '#B45309');
+      furnSvg += isoBox(tx0 + 0.5, ty0 - 0.75, tx0 + 1.7, ty0 - 0.1, 0.2, 1.7, '#FEF3C7', '#92400E', '#D97706');
+      furnSvg += isoBox(tx1 - 1.7, ty0 - 0.75, tx1 - 0.5, ty0 - 0.1, 0.2, 1.7, '#FEF3C7', '#92400E', '#D97706');
+      furnSvg += isoBox(tx0 + 0.5, ty1 + 0.1, tx0 + 1.7, ty1 + 0.75, 0.2, 1.7, '#FEF3C7', '#92400E', '#D97706');
+      furnSvg += isoBox(tx1 - 1.7, ty1 + 0.1, tx1 - 0.5, ty1 + 0.75, 0.2, 1.7, '#FEF3C7', '#92400E', '#D97706');
     } else if (r.furniture === 'kitchen_counter' && r.width >= 5.5 && r.depth >= 5.5) {
       const kx0 = Math.max(x0 + 1.0, x1 - 2.3);
-      const ky0 = y0 + 0.9;
+      const ky0 = y0 + 0.85;
       const kx1 = x1 - 0.35;
       const ky1 = y1 - 0.6;
-      furnSvg += isoBox(kx0, ky0, kx1, ky1, 0.2, 2.9, '#F1F5F9', '#475569', '#64748B');
-      furnSvg += isoBox(x0 + 1.2, Math.max(y0 + 1.0, y1 - 2.3), kx0, ky1, 0.2, 2.9, '#F1F5F9', '#475569', '#64748B');
-      furnSvg += isoBox(kx0 + 0.25, ky0 + 1.0, kx1 - 0.25, Math.min(ky1 - 1.0, ky0 + 2.8), 2.9, 3.05, '#38BDF8', '#0284C7', '#0369A1');
+      furnSvg += isoBox(x0 + 0.6, y0 + 0.6, Math.min(kx0 - 0.3, x0 + 2.6), y0 + 2.5, 0.2, 6.2, '#E2E8F0', '#475569', '#64748B');
+      furnSvg += isoBox(kx0, ky0, kx1, ky1, 0.2, 2.95, '#F8FAFC', '#475569', '#64748B');
+      furnSvg += isoBox(x0 + 1.0, Math.max(y0 + 1.0, y1 - 2.3), kx0, ky1, 0.2, 2.95, '#F8FAFC', '#475569', '#64748B');
+      furnSvg += isoBox(kx0 + 0.25, ky0 + 1.0, kx1 - 0.25, Math.min(ky1 - 1.0, ky0 + 2.8), 2.95, 3.12, '#38BDF8', '#0284C7', '#0369A1');
+      furnSvg += isoBox(x0 + 1.6, Math.max(y0 + 1.2, y1 - 2.0), Math.min(kx0 - 0.3, x0 + 3.8), ky1 - 0.25, 2.95, 3.12, '#1E293B', '#0F172A', '#334155');
     } else if (r.furniture === 'bath_fixtures' && r.width >= 4 && r.depth >= 4) {
-      furnSvg += isoBox(x0 + 0.7, y0 + 0.7, Math.min(x1 - 0.7, x0 + 2.4), Math.min(y1 - 0.7, y0 + 2.0), 0.2, 2.6, '#FFFFFF', '#94A3B8', '#CBD5E1');
-      furnSvg += isoBox(Math.max(x0 + 0.8, x1 - 2.2), y0 + 0.7, x1 - 0.6, Math.min(y1 - 0.7, y0 + 2.2), 0.2, 1.8, '#E0F2FE', '#0284C7', '#38BDF8');
+      furnSvg += isoBox(x0 + 0.6, y0 + 0.6, Math.min(x1 - 0.6, x0 + 2.4), Math.min(y1 - 0.6, y0 + 2.0), 0.2, 2.65, '#FFFFFF', '#94A3B8', '#CBD5E1');
+      furnSvg += isoBox(Math.max(x0 + 0.8, x1 - 2.2), y0 + 0.6, x1 - 0.5, Math.min(y1 - 0.6, y0 + 2.2), 0.2, 1.9, '#E0F2FE', '#0284C7', '#38BDF8');
     } else if (r.furniture === 'stairs' && r.width >= 5 && r.depth >= 3.2) {
-      for (let s = 0; s < 4; s++) {
-        const sx0 = x0 + 0.8 + s * ((r.width - 1.6) / 4);
-        const sx1 = sx0 + (r.width - 1.6) / 4;
-        furnSvg += isoBox(sx0, y0 + 0.6, sx1, y1 - 0.6, 0.2, 1.2 + s * 1.4, '#CBD5E1', '#475569', '#64748B');
+      for (let s = 0; s < 5; s++) {
+        const sx0 = x0 + 0.7 + s * ((r.width - 1.4) / 5);
+        const sx1 = sx0 + (r.width - 1.4) / 5;
+        furnSvg += isoBox(sx0, y0 + 0.55, sx1, y1 - 0.55, 0.2, 1.1 + s * 1.25, '#E2E8F0', '#475569', '#64748B');
       }
     } else if (r.furniture === 'car_bay' && r.width >= 7 && r.depth >= 9) {
       const cx0 = x0 + Math.max(1.2, (r.width - 5.4) / 2);
       const cy0 = y0 + Math.max(1.4, (r.depth - 10.5) / 2);
       const cx1 = Math.min(x1 - 1.2, cx0 + 5.4);
       const cy1 = Math.min(y1 - 1.4, cy0 + 10.5);
-      furnSvg += isoBox(cx0, cy0, cx1, cy1, 0.3, 2.4, '#38BDF8', '#0369A1', '#0284C7');
-      furnSvg += isoBox(cx0 + 0.4, cy0 + 2.2, cx1 - 0.4, cy1 - 2.0, 2.4, 3.8, '#BAE6FD', '#0284C7', '#38BDF8');
+      furnSvg += isoBox(cx0, cy0, cx1, cy1, 0.3, 2.35, '#38BDF8', '#0369A1', '#0284C7');
+      furnSvg += isoBox(cx0 + 0.4, cy0 + 2.2, cx1 - 0.4, cy1 - 2.0, 2.35, 3.85, '#E0F2FE', '#0284C7', '#38BDF8');
     }
 
     isoRoomsSvg += `
@@ -1059,20 +1134,20 @@ function render3DCutawaySvg(model) {
         <!-- Room Floor Slab -->
         <polygon points="${polyStr(fPts)}" fill="${floorFill}" stroke="#475569" stroke-width="1.3"/>
         <!-- Rear/Side Walls (Shaded) -->
-        <polygon points="${polyStr(northWallPts)}" fill="#CBD5E1" fill-opacity="0.92" stroke="#64748B" stroke-width="1.1"/>
-        <polygon points="${polyStr(westWallPts)}" fill="#94A3B8" fill-opacity="0.92" stroke="#64748B" stroke-width="1.1"/>
+        <polygon points="${polyStr(northWallPts)}" fill="url(#isoNorthWall)" stroke="#64748B" stroke-width="1.1"/>
+        <polygon points="${polyStr(westWallPts)}" fill="url(#isoWestWall)" stroke="#64748B" stroke-width="1.1"/>
         <polygon points="${polyStr(northWallCap)}" fill="#F8FAFC" stroke="#475569" stroke-width="0.9"/>
         <polygon points="${polyStr(westWallCap)}" fill="#E2E8F0" stroke="#475569" stroke-width="0.9"/>
         ${furnSvg}
-        <!-- Front/Cutaway Walls (Translucent architectural cutaway) -->
-        <polygon points="${polyStr(eastWallPts)}" fill="#64748B" fill-opacity="0.34" stroke="#94A3B8" stroke-width="1.1"/>
-        <polygon points="${polyStr(southWallPts)}" fill="#475569" fill-opacity="0.34" stroke="#94A3B8" stroke-width="1.1"/>
-        <!-- Cutaway Wall Top Rim Highlight -->
-        <polygon points="${polyStr(topCapPts)}" fill="none" stroke="${r.isSemiOpen ? '#38BDF8' : '#F8FAFC'}" stroke-width="${r.isSemiOpen ? '1.8' : '2.8'}" ${r.isSemiOpen ? 'stroke-dasharray="5 3"' : ''}/>
+        <!-- Front/Cutaway Walls (Low cutaway walls) -->
+        <polygon points="${polyStr(eastWallPts)}" fill="#94A3B8" fill-opacity="0.55" stroke="#64748B" stroke-width="1"/>
+        <polygon points="${polyStr(southWallPts)}" fill="#64748B" fill-opacity="0.55" stroke="#64748B" stroke-width="1"/>
+        <polygon points="${polyStr(eastWallCap)}" fill="#E2E8F0" fill-opacity="0.85" stroke="#475569" stroke-width="0.8"/>
+        <polygon points="${polyStr(southWallCap)}" fill="#CBD5E1" fill-opacity="0.85" stroke="#475569" stroke-width="0.8"/>
         <!-- Room Label Badge -->
-        <rect x="${+(cx - 66).toFixed(1)}" y="${+(cy - 18).toFixed(1)}" width="132" height="34" rx="5" fill="#070E1A" fill-opacity="0.88" stroke="#DAA520" stroke-opacity="0.85" stroke-width="1.1"/>
-        <text x="${cx}" y="${+(cy - 4).toFixed(1)}" text-anchor="middle" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="10.5" font-weight="bold">${escXml(r.code)} · ${escXml(r.name.slice(0, 18))}</text>
-        <text x="${cx}" y="${+(cy + 10).toFixed(1)}" text-anchor="middle" fill="#DAA520" font-family="monospace" font-size="9.5" font-weight="bold">${r.width}' × ${r.depth}' (${r.areaSqFt} sf)</text>
+        <rect x="${+(cx - 64).toFixed(1)}" y="${+(cy - 16).toFixed(1)}" width="128" height="31" rx="5" fill="#070E1A" fill-opacity="0.90" stroke="#DAA520" stroke-opacity="0.9" stroke-width="1.1"/>
+        <text x="${cx}" y="${+(cy - 3).toFixed(1)}" text-anchor="middle" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="10" font-weight="bold">${escXml(r.code)} · ${escXml(r.name.slice(0, 18))}</text>
+        <text x="${cx}" y="${+(cy + 10).toFixed(1)}" text-anchor="middle" fill="#DAA520" font-family="monospace" font-size="9" font-weight="bold">${r.width}' × ${r.depth}' (${r.areaSqFt} sf)</text>
       </g>
     `;
   }
@@ -1085,6 +1160,26 @@ function render3DCutawaySvg(model) {
     <linearGradient id="bgGrad3D" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#0B1528"/>
       <stop offset="100%" stop-color="#16243D"/>
+    </linearGradient>
+    <linearGradient id="isoNorthWall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </linearGradient>
+    <linearGradient id="isoWestWall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
+    </linearGradient>
+    <linearGradient id="isoWoodFloor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E6C9A8"/>
+      <stop offset="100%" stop-color="#C89F74"/>
+    </linearGradient>
+    <linearGradient id="isoMarbleFloor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F5EBE0"/>
+      <stop offset="100%" stop-color="#D5BDAF"/>
+    </linearGradient>
+    <linearGradient id="isoWetFloor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="100%" stop-color="#7DD3FC"/>
     </linearGradient>
   </defs>
 

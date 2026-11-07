@@ -91,10 +91,50 @@ const removeStoredMedia = (url) => {
   });
 };
 
-const sanitizeAvatarUrl = (url) => {
+const CONFIRMED_STATIC_REEL_VIDEOS = {
+  'margaret_river_vineyard.mp4': 'https://boolokgpt.vercel.app/videos/margaret_river_vineyard.mp4',
+  'Margaret River Vineyard.mp4': 'https://boolokgpt.vercel.app/videos/margaret_river_vineyard.mp4',
+  'house_routing_silent.mp4': 'https://boolokgpt.vercel.app/videos/house_routing_silent.mp4',
+  'house_routing_original.mp4': 'https://boolokgpt.vercel.app/videos/house_routing_silent.mp4',
+  'kyoto.mp4': 'https://boolokgpt.vercel.app/videos/kyoto.mp4',
+  'uluwatu_cliffside.mp4': 'https://boolokgpt.vercel.app/videos/uluwatu_cliffside.mp4',
+  'Uluwatu Cliffside.mp4': 'https://boolokgpt.vercel.app/videos/uluwatu_cliffside.mp4',
+};
+
+const resolveDurableVideoUrl = (rawUrl) => {
+  if (!rawUrl || typeof rawUrl !== 'string') return '';
+  const clean = rawUrl.trim();
+  if (!clean || clean === 'null' || clean === 'undefined') return '';
+  const m = clean.match(/\/uploads\/reels\/([^/?#]+)/);
+  if (m && CONFIRMED_STATIC_REEL_VIDEOS[m[1]]) {
+    return CONFIRMED_STATIC_REEL_VIDEOS[m[1]];
+  }
+  return clean;
+};
+
+const sanitizeAvatarUrl = (url, userObj = null) => {
+  if (userObj && typeof userObj === 'object') {
+    const uid = String(userObj._id || userObj.id || '').toLowerCase().trim();
+    const uname = String(userObj.username || '').toLowerCase().trim();
+    const fname = String(userObj.fullName || '').toLowerCase().trim();
+    if (
+      uid === '6a7a0dbb51a42123f22c4edf' ||
+      uid === '6ab67b7fa948cf929a483963' ||
+      uname === 'saivimenthanvl' ||
+      uname === 'saivimenthan' ||
+      fname.includes('sai vimenthan')
+    ) {
+      return null;
+    }
+  }
   if (!url || typeof url !== 'string') return null;
   // Filter out known solid dark-brown Google placeholder image
-  if (url.includes('ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r')) return null;
+  if (
+    url.includes('ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r') ||
+    url.includes('ACg8ocK0o5SZUMa-JTOuTUTxS6t1Bl20HPwVkbFAz98dCG6e1rbpGA')
+  ) {
+    return null;
+  }
   return url;
 };
 
@@ -102,7 +142,7 @@ const mapUser = (u) => ({
   _id: u?._id || u?.id || null,
   fullName: u?.fullName || 'Boolok Member',
   username: u?.username || 'member',
-  profilePicture: sanitizeAvatarUrl(u?.profilePicture),
+  profilePicture: sanitizeAvatarUrl(u?.profilePicture, u),
 });
 
 const mapComment = (c) => {
@@ -134,7 +174,7 @@ const formatReel = (reel, viewerId = null) => {
         _id: r.author._id.toString(),
         fullName: authorDisplayName,
         username: r.author.username || 'member',
-        profilePicture: sanitizeAvatarUrl(r.author.profilePicture),
+        profilePicture: sanitizeAvatarUrl(r.author.profilePicture, r.author),
       }
     : {
         // author not populated (plain ObjectId) or user deleted
@@ -146,6 +186,9 @@ const formatReel = (reel, viewerId = null) => {
 
   const titleStr = r.title || '';
   let priceStr = r.price !== undefined && r.price !== null ? String(r.price).trim() : '';
+  if (priceStr === 'undefined' || priceStr === 'null') {
+    priceStr = '';
+  }
   if (!priceStr && titleStr.toLowerCase().includes('coventry')) {
     priceStr = '£12,242,788';
   }
@@ -158,7 +201,7 @@ const formatReel = (reel, viewerId = null) => {
   return {
     _id: r._id.toString(),
     author: authorObj,
-    videoUrl: r.videoUrl,
+    videoUrl: resolveDurableVideoUrl(r.videoUrl),
     poster,
     thumbnail,
     caption: r.caption || '',
@@ -214,6 +257,9 @@ router.get('/stream/:filename', async (req, res) => {
   try {
     stat = await fs.promises.stat(filePath);
   } catch (_) {
+    if (CONFIRMED_STATIC_REEL_VIDEOS[filename]) {
+      return res.redirect(302, CONFIRMED_STATIC_REEL_VIDEOS[filename]);
+    }
     // File is gone (e.g. host disk was wiped). Report it honestly so the app can
     // show a proper "couldn't load" state instead of silently playing a different video.
     return res.status(404).json({ message: 'Video file not found' });
@@ -257,21 +303,40 @@ router.get('/stream/:filename', async (req, res) => {
   stream.pipe(res);
 });
 
-// ── GET /api/reels : Fetch reels (supports ?limit=&skip=) ───────────────────
+// ── GET /api/reels : Fetch reels (supports ?limit=&skip=&author=) ──────────
 router.get('/', optionalAuth, async (req, res) => {
   try {
     const viewerId = req.user?.id || req.user?._id || null;
-    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 100);
     const skip = Math.max(parseInt(req.query.skip, 10) || 0, 0);
 
-    const reels = await Reel.find()
+    const query = {
+      isDeleted: { $ne: true },
+      isArchived: { $ne: true },
+      videoUrl: { $nin: ['', null, 'null', 'undefined'] },
+    };
+
+    if (req.query.author && mongoose.Types.ObjectId.isValid(req.query.author)) {
+      query.author = new mongoose.Types.ObjectId(req.query.author);
+    }
+
+    const reels = await Reel.find(query)
       .populate('author', 'fullName username profilePicture')
       .populate('comments.user', 'fullName username profilePicture')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    res.json(reels.map((r) => formatReel(r, viewerId)));
+    const seenIds = new Set();
+    const formatted = [];
+    for (const r of reels) {
+      const idStr = r._id ? r._id.toString() : '';
+      if (!idStr || seenIds.has(idStr)) continue;
+      seenIds.add(idStr);
+      formatted.push(formatReel(r, viewerId));
+    }
+
+    res.json(formatted);
   } catch (error) {
     console.error('FETCH REELS ERROR:', error);
     res.status(500).json({ message: 'Server error fetching reels' });

@@ -1715,10 +1715,10 @@ router.get('/:id', optionalAuth, async (req, res) => {
         .populate('comments.user', 'fullName username profilePicture')
         .sort({ createdAt: -1 }),
       Reel.find({
-        $or: [
-          { author: profileUser._id },
-          ...(profileUser.username ? [{ author: null, authorName: profileUser.username }] : []),
-        ],
+        author: profileUser._id,
+        isDeleted: { $ne: true },
+        isArchived: { $ne: true },
+        videoUrl: { $nin: ['', null, 'null', 'undefined'] },
       })
         .populate('author', 'fullName username profilePicture')
         .populate('comments.user', 'fullName username profilePicture')
@@ -1823,14 +1823,40 @@ router.get('/:id', optionalAuth, async (req, res) => {
     });
 
     let userReels = formattedReels;
-    // Only static seeded demo accounts show demo showcase reels if non-self and has 0 DB reels
-    if (!sanitized.isSelf && userReels.length === 0) {
-      if (usernameKey === 'logeshwarana') {
-        userReels = LOGESHWARAN_REELS;
-      } else if (usernameKey === 'saivimenthanvl') {
-        userReels = SAI_REELS;
-      }
-    }
+    const CONFIRMED_STATIC_REEL_VIDEOS = {
+      'margaret_river_vineyard.mp4': 'https://boolokgpt.vercel.app/videos/margaret_river_vineyard.mp4',
+      'Margaret River Vineyard.mp4': 'https://boolokgpt.vercel.app/videos/margaret_river_vineyard.mp4',
+      'house_routing_silent.mp4': 'https://boolokgpt.vercel.app/videos/house_routing_silent.mp4',
+      'house_routing_original.mp4': 'https://boolokgpt.vercel.app/videos/house_routing_silent.mp4',
+      'kyoto.mp4': 'https://boolokgpt.vercel.app/videos/kyoto.mp4',
+      'uluwatu_cliffside.mp4': 'https://boolokgpt.vercel.app/videos/uluwatu_cliffside.mp4',
+      'Uluwatu Cliffside.mp4': 'https://boolokgpt.vercel.app/videos/uluwatu_cliffside.mp4',
+    };
+    const seenReelIds = new Set();
+    userReels = (userReels || [])
+      .map((r) => {
+        const rawUrl = r.videoUrl ? String(r.videoUrl).trim() : '';
+        const m = rawUrl.match(/\/uploads\/reels\/([^/?#]+)/);
+        const resolvedUrl = m && CONFIRMED_STATIC_REEL_VIDEOS[m[1]] ? CONFIRMED_STATIC_REEL_VIDEOS[m[1]] : rawUrl;
+        const cleanPrice = r.price && r.price !== 'undefined' && r.price !== 'null' ? r.price : '';
+        return {
+          ...r,
+          price: cleanPrice,
+          videoUrl: resolvedUrl,
+          author: r.author
+            ? {
+                ...r.author,
+                profilePicture: sanitized.profilePicture || null,
+              }
+            : r.author,
+        };
+      })
+      .filter((r) => {
+        const rid = String(r._id || '');
+        if (!rid || seenReelIds.has(rid) || !r.videoUrl) return false;
+        seenReelIds.add(rid);
+        return true;
+      });
 
     return res.status(200).json({
       user: sanitized,
