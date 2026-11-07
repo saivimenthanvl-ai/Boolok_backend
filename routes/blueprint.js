@@ -565,8 +565,8 @@ function render2DFloorPlanSvg(model) {
   const svgH = 1180;
 
   // Drawing viewport box inside SVG
-  const padX = 110;
-  const padTop = 125;
+  const padX = 105;
+  const padTop = 122;
   const availW = svgW - padX * 2;
   const availH = 740;
 
@@ -581,12 +581,12 @@ function render2DFloorPlanSvg(model) {
   const len = (ft) => +(ft * scale).toFixed(1);
 
   const categoryFills = {
-    private: '#112239',
-    public: '#132842',
-    wet: '#0E2D3A',
-    circulation: '#1A2636',
-    service: '#162030',
-    parking: '#121B28',
+    private: '#FEF3C7',
+    public: '#FFEDD5',
+    wet: '#E0F2FE',
+    circulation: '#F8FAFC',
+    service: '#F1F5F9',
+    parking: '#E2E8F0',
   };
 
   let roomElements = '';
@@ -596,39 +596,104 @@ function render2DFloorPlanSvg(model) {
     const ry = py(r.y);
     const rw = len(r.width);
     const rh = len(r.depth);
-    const fill = categoryFills[r.category] || '#112239';
+    const fill = categoryFills[r.category] || '#FFFFFF';
     const cx = +(rx + rw / 2).toFixed(1);
     const cy = +(ry + rh / 2).toFixed(1);
 
     // Room fill & CAD double-line wall
     roomElements += `
       <g>
-        <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" fill="${fill}" stroke="#F8FAFC" stroke-width="${r.isSemiOpen ? '2' : '4.5'}" ${r.isSemiOpen ? 'stroke-dasharray="8 5"' : ''}/>
-        <rect x="${+(rx + 3).toFixed(1)}" y="${+(ry + 3).toFixed(1)}" width="${Math.max(2, +(rw - 6).toFixed(1))}" height="${Math.max(2, +(rh - 6).toFixed(1))}" fill="none" stroke="#38BDF8" stroke-opacity="0.32" stroke-width="1"/>
+        <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" fill="${fill}" stroke="#0F172A" stroke-width="${r.isSemiOpen ? '2.5' : '6'}" ${r.isSemiOpen ? 'stroke-dasharray="9 5"' : ''}/>
+        <rect x="${+(rx + 3.5).toFixed(1)}" y="${+(ry + 3.5).toFixed(1)}" width="${Math.max(2, +(rw - 7).toFixed(1))}" height="${Math.max(2, +(rh - 7).toFixed(1))}" fill="none" stroke="#334155" stroke-opacity="0.45" stroke-width="1.2"/>
     `;
 
-    // Subtle architectural fixture symbols
-    if (r.furniture === 'bed_double' && rw > 65 && rh > 65) {
-      const bw = Math.min(48, rw * 0.42);
-      const bh = Math.min(54, rh * 0.45);
+    // Architectural top-down furniture & fixture symbols
+    if (r.furniture === 'bed_double' && rw > 60 && rh > 60) {
+      const bw = Math.min(54, rw * 0.42);
+      const bh = Math.min(60, rh * 0.46);
       const bx = +(rx + 12).toFixed(1);
       const by = +(ry + 12).toFixed(1);
       roomElements += `
-        <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="3" fill="none" stroke="#64748B" stroke-width="1.3"/>
-        <rect x="${+(bx + 4).toFixed(1)}" y="${+(by + 4).toFixed(1)}" width="${+(bw / 2 - 6).toFixed(1)}" height="10" rx="2" fill="none" stroke="#64748B" stroke-width="1.1"/>
-        <rect x="${+(bx + bw / 2 + 2).toFixed(1)}" y="${+(by + 4).toFixed(1)}" width="${+(bw / 2 - 6).toFixed(1)}" height="10" rx="2" fill="none" stroke="#64748B" stroke-width="1.1"/>
+        <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="3" fill="#FFFBEB" stroke="#78350F" stroke-width="1.5"/>
+        <rect x="${bx}" y="${by}" width="${bw}" height="6" fill="#92400E"/>
+        <rect x="${+(bx + 5).toFixed(1)}" y="${+(by + 8).toFixed(1)}" width="${+(bw / 2 - 7).toFixed(1)}" height="11" rx="2" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
+        <rect x="${+(bx + bw / 2 + 2).toFixed(1)}" y="${+(by + 8).toFixed(1)}" width="${+(bw / 2 - 7).toFixed(1)}" height="11" rx="2" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
+        <line x1="${bx}" y1="${+(by + 24).toFixed(1)}" x2="${+(bx + bw).toFixed(1)}" y2="${+(by + 24).toFixed(1)}" stroke="#B45309" stroke-width="1.1"/>
+        <rect x="${+(rx + rw - 18).toFixed(1)}" y="${+(ry + 12).toFixed(1)}" width="10" height="${Math.min(48, +(rh * 0.42).toFixed(1))}" fill="#FDE68A" stroke="#78350F" stroke-width="1.2"/>
       `;
-    } else if (r.furniture === 'kitchen_counter' && rw > 55 && rh > 55) {
+    } else if (r.furniture === 'bed_twin' && rw > 55 && rh > 55) {
+      const bw = Math.min(44, rw * 0.38);
+      const bh = Math.min(52, rh * 0.44);
+      const bx = +(rx + rw - bw - 12).toFixed(1);
+      const by = +(ry + 12).toFixed(1);
       roomElements += `
-        <path d="M ${+(rx + rw - 16).toFixed(1)} ${+(ry + 10).toFixed(1)} H ${+(rx + rw - 6).toFixed(1)} V ${+(ry + rh - 10).toFixed(1)} H ${+(rx + 14).toFixed(1)} V ${+(ry + rh - 20).toFixed(1)} H ${+(rx + rw - 16).toFixed(1)} Z" fill="none" stroke="#F59E0B" stroke-opacity="0.55" stroke-width="1.4"/>
+        <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="3" fill="#FFFBEB" stroke="#78350F" stroke-width="1.5"/>
+        <rect x="${bx}" y="${by}" width="${bw}" height="5" fill="#92400E"/>
+        <rect x="${+(bx + 6).toFixed(1)}" y="${+(by + 7).toFixed(1)}" width="${+(bw - 12).toFixed(1)}" height="10" rx="2" fill="#FFFFFF" stroke="#92400E" stroke-width="1.1"/>
+        <rect x="${+(rx + 10).toFixed(1)}" y="${+(ry + 12).toFixed(1)}" width="10" height="${Math.min(42, +(rh * 0.38).toFixed(1))}" fill="#FDE68A" stroke="#78350F" stroke-width="1.2"/>
       `;
-    } else if (r.furniture === 'car_bay' && rw > 60 && rh > 85) {
-      const cw = Math.min(46, rw * 0.54);
-      const ch = Math.min(82, rh * 0.58);
+    } else if (r.furniture === 'living_sofa' && rw > 65 && rh > 65) {
+      const sw = Math.min(68, rw * 0.48);
+      const sh = Math.min(22, rh * 0.22);
+      const sx = +(rx + 14).toFixed(1);
+      const sy = +(ry + 14).toFixed(1);
+      roomElements += `
+        <rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="3" fill="#FED7AA" stroke="#9A3412" stroke-width="1.5"/>
+        <rect x="${sx}" y="${sy}" width="18" height="${Math.min(44, +(rh * 0.38).toFixed(1))}" rx="3" fill="#FED7AA" stroke="#9A3412" stroke-width="1.5"/>
+        <rect x="${+(sx + 24).toFixed(1)}" y="${+(sy + sh + 6).toFixed(1)}" width="${Math.max(18, +(sw - 28).toFixed(1))}" height="14" rx="2" fill="#FFEDD5" stroke="#9A3412" stroke-width="1.2"/>
+      `;
+    } else if (r.furniture === 'dining_table' && rw > 60 && rh > 55) {
+      const tw = Math.min(50, rw * 0.36);
+      const th = Math.min(30, rh * 0.32);
+      const tx = +(rx + 14).toFixed(1);
+      const ty = +(ry + 14).toFixed(1);
+      roomElements += `
+        <rect x="${tx}" y="${ty}" width="${tw}" height="${th}" rx="4" fill="#FDE68A" stroke="#92400E" stroke-width="1.5"/>
+        <rect x="${+(tx + 6).toFixed(1)}" y="${+(ty - 5).toFixed(1)}" width="10" height="4" rx="1" fill="#B45309"/>
+        <rect x="${+(tx + tw - 16).toFixed(1)}" y="${+(ty - 5).toFixed(1)}" width="10" height="4" rx="1" fill="#B45309"/>
+        <rect x="${+(tx + 6).toFixed(1)}" y="${+(ty + th + 1).toFixed(1)}" width="10" height="4" rx="1" fill="#B45309"/>
+        <rect x="${+(tx + tw - 16).toFixed(1)}" y="${+(ty + th + 1).toFixed(1)}" width="10" height="4" rx="1" fill="#B45309"/>
+      `;
+    } else if (r.furniture === 'kitchen_counter' && rw > 50 && rh > 50) {
+      const cDepth = Math.min(16, rw * 0.16);
+      roomElements += `
+        <path d="M ${+(rx + rw - cDepth - 6).toFixed(1)} ${+(ry + 8).toFixed(1)} H ${+(rx + rw - 6).toFixed(1)} V ${+(ry + rh - 8).toFixed(1)} H ${+(rx + 12).toFixed(1)} V ${+(ry + rh - cDepth - 8).toFixed(1)} H ${+(rx + rw - cDepth - 6).toFixed(1)} Z" fill="#CBD5E1" stroke="#334155" stroke-width="1.5"/>
+        <rect x="${+(rx + rw - cDepth - 4).toFixed(1)}" y="${+(ry + 18).toFixed(1)}" width="${Math.max(8, +(cDepth - 4).toFixed(1))}" height="16" rx="2" fill="#E0F2FE" stroke="#0369A1" stroke-width="1.2"/>
+        <circle cx="${+(rx + 28).toFixed(1)}" cy="${+(ry + rh - cDepth / 2 - 8).toFixed(1)}" r="3.2" fill="none" stroke="#0F172A" stroke-width="1.2"/>
+        <circle cx="${+(rx + 38).toFixed(1)}" cy="${+(ry + rh - cDepth / 2 - 8).toFixed(1)}" r="3.2" fill="none" stroke="#0F172A" stroke-width="1.2"/>
+      `;
+    } else if (r.furniture === 'bath_fixtures' && rw > 42 && rh > 36) {
+      roomElements += `
+        <rect x="${+(rx + 8).toFixed(1)}" y="${+(ry + 8).toFixed(1)}" width="14" height="10" rx="3" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.3"/>
+        <ellipse cx="${+(rx + rw - 15).toFixed(1)}" cy="${+(ry + 14).toFixed(1)}" rx="6" ry="8" fill="#FFFFFF" stroke="#0284C7" stroke-width="1.3"/>
+      `;
+    } else if (r.furniture === 'wardrobe' && rw > 40 && rh > 30) {
+      roomElements += `
+        <rect x="${+(rx + 8).toFixed(1)}" y="${+(ry + 7).toFixed(1)}" width="${Math.max(16, +(rw - 16).toFixed(1))}" height="9" fill="#FDE68A" stroke="#78350F" stroke-width="1.2"/>
+      `;
+    } else if (r.furniture === 'stairs' && rw > 45 && rh > 30) {
+      const sW = Math.min(54, rw * 0.45);
+      const sH = Math.min(20, rh * 0.42);
+      const sx = +(rx + rw - sW - 10).toFixed(1);
+      const sy = +(ry + 8).toFixed(1);
+      roomElements += `
+        <rect x="${sx}" y="${sy}" width="${sW}" height="${sH}" fill="#E2E8F0" stroke="#334155" stroke-width="1.3"/>
+        <line x1="${+(sx + sW * 0.25).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.25).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1"/>
+        <line x1="${+(sx + sW * 0.5).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.5).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1"/>
+        <line x1="${+(sx + sW * 0.75).toFixed(1)}" y1="${sy}" x2="${+(sx + sW * 0.75).toFixed(1)}" y2="${+(sy + sH).toFixed(1)}" stroke="#475569" stroke-width="1"/>
+      `;
+    } else if (r.furniture === 'pooja' && rw > 40 && rh > 30) {
+      roomElements += `
+        <rect x="${+(rx + rw - 24).toFixed(1)}" y="${+(ry + 8).toFixed(1)}" width="14" height="14" rx="2" fill="#FEF08A" stroke="#B45309" stroke-width="1.3"/>
+      `;
+    } else if (r.furniture === 'car_bay' && rw > 55 && rh > 80) {
+      const cw = Math.min(48, rw * 0.54);
+      const ch = Math.min(86, rh * 0.58);
       const carX = +(cx - cw / 2).toFixed(1);
-      const carY = +(cy - ch / 2 + 12).toFixed(1);
+      const carY = +(ry + 14).toFixed(1);
       roomElements += `
-        <rect x="${carX}" y="${carY}" width="${cw}" height="${ch}" rx="8" fill="none" stroke="#64748B" stroke-dasharray="4 3" stroke-width="1.4"/>
+        <rect x="${carX}" y="${carY}" width="${cw}" height="${ch}" rx="9" fill="#F8FAFC" stroke="#475569" stroke-dasharray="5 3" stroke-width="1.6"/>
+        <rect x="${+(carX + 6).toFixed(1)}" y="${+(carY + 12).toFixed(1)}" width="${+(cw - 12).toFixed(1)}" height="${+(ch * 0.45).toFixed(1)}" rx="4" fill="#E2E8F0" stroke="#64748B" stroke-width="1.1"/>
       `;
     }
 
@@ -637,16 +702,16 @@ function render2DFloorPlanSvg(model) {
       const winLen = Math.max(18, len(w.widthFt));
       if (w.wall === 'north') {
         const wx = +(rx + rw * w.offsetRatio - winLen / 2).toFixed(1);
-        roomElements += `<rect x="${wx}" y="${+(ry - 3).toFixed(1)}" width="${winLen}" height="6" fill="#0B1526" stroke="#38BDF8" stroke-width="1.8"/>`;
+        roomElements += `<rect x="${wx}" y="${+(ry - 3.5).toFixed(1)}" width="${winLen}" height="7" fill="#BAE6FD" stroke="#0284C7" stroke-width="1.8"/><line x1="${wx}" y1="${ry}" x2="${+(wx + winLen).toFixed(1)}" y2="${ry}" stroke="#0369A1" stroke-width="1"/>`;
       } else if (w.wall === 'south') {
         const wx = +(rx + rw * w.offsetRatio - winLen / 2).toFixed(1);
-        roomElements += `<rect x="${wx}" y="${+(ry + rh - 3).toFixed(1)}" width="${winLen}" height="6" fill="#0B1526" stroke="#38BDF8" stroke-width="1.8"/>`;
+        roomElements += `<rect x="${wx}" y="${+(ry + rh - 3.5).toFixed(1)}" width="${winLen}" height="7" fill="#BAE6FD" stroke="#0284C7" stroke-width="1.8"/><line x1="${wx}" y1="${+(ry + rh).toFixed(1)}" x2="${+(wx + winLen).toFixed(1)}" y2="${+(ry + rh).toFixed(1)}" stroke="#0369A1" stroke-width="1"/>`;
       } else if (w.wall === 'west') {
         const wy = +(ry + rh * w.offsetRatio - winLen / 2).toFixed(1);
-        roomElements += `<rect x="${+(rx - 3).toFixed(1)}" y="${wy}" width="6" height="${winLen}" fill="#0B1526" stroke="#38BDF8" stroke-width="1.8"/>`;
+        roomElements += `<rect x="${+(rx - 3.5).toFixed(1)}" y="${wy}" width="7" height="${winLen}" fill="#BAE6FD" stroke="#0284C7" stroke-width="1.8"/><line x1="${rx}" y1="${wy}" x2="${rx}" y2="${+(wy + winLen).toFixed(1)}" stroke="#0369A1" stroke-width="1"/>`;
       } else if (w.wall === 'east') {
         const wy = +(ry + rh * w.offsetRatio - winLen / 2).toFixed(1);
-        roomElements += `<rect x="${+(rx + rw - 3).toFixed(1)}" y="${wy}" width="6" height="${winLen}" fill="#0B1526" stroke="#38BDF8" stroke-width="1.8"/>`;
+        roomElements += `<rect x="${+(rx + rw - 3.5).toFixed(1)}" y="${wy}" width="7" height="${winLen}" fill="#BAE6FD" stroke="#0284C7" stroke-width="1.8"/><line x1="${+(rx + rw).toFixed(1)}" y1="${wy}" x2="${+(rx + rw).toFixed(1)}" y2="${+(wy + winLen).toFixed(1)}" stroke="#0369A1" stroke-width="1"/>`;
       }
     }
 
@@ -657,33 +722,33 @@ function render2DFloorPlanSvg(model) {
         const dx = +(rx + rw * d.offsetRatio - doorLen / 2).toFixed(1);
         const dy = +(ry + rh).toFixed(1);
         roomElements += `
-          <line x1="${dx}" y1="${dy}" x2="${+(dx + doorLen).toFixed(1)}" y2="${dy}" stroke="${fill}" stroke-width="6"/>
-          <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${+(dy - doorLen).toFixed(1)}" stroke="#DAA520" stroke-width="2"/>
-          <path d="M ${dx} ${+(dy - doorLen).toFixed(1)} A ${doorLen} ${doorLen} 0 0 1 ${+(dx + doorLen).toFixed(1)} ${dy}" fill="none" stroke="#DAA520" stroke-width="1.3" stroke-dasharray="3 2"/>
+          <line x1="${dx}" y1="${dy}" x2="${+(dx + doorLen).toFixed(1)}" y2="${dy}" stroke="${fill}" stroke-width="7"/>
+          <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${+(dy - doorLen).toFixed(1)}" stroke="#B45309" stroke-width="2.2"/>
+          <path d="M ${dx} ${+(dy - doorLen).toFixed(1)} A ${doorLen} ${doorLen} 0 0 1 ${+(dx + doorLen).toFixed(1)} ${dy}" fill="none" stroke="#D97706" stroke-width="1.4" stroke-dasharray="3 2"/>
         `;
       } else if (d.wall === 'north') {
         const dx = +(rx + rw * d.offsetRatio - doorLen / 2).toFixed(1);
         const dy = ry;
         roomElements += `
-          <line x1="${dx}" y1="${dy}" x2="${+(dx + doorLen).toFixed(1)}" y2="${dy}" stroke="${fill}" stroke-width="6"/>
-          <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${+(dy + doorLen).toFixed(1)}" stroke="#DAA520" stroke-width="2"/>
-          <path d="M ${dx} ${+(dy + doorLen).toFixed(1)} A ${doorLen} ${doorLen} 0 0 0 ${+(dx + doorLen).toFixed(1)} ${dy}" fill="none" stroke="#DAA520" stroke-width="1.3" stroke-dasharray="3 2"/>
+          <line x1="${dx}" y1="${dy}" x2="${+(dx + doorLen).toFixed(1)}" y2="${dy}" stroke="${fill}" stroke-width="7"/>
+          <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${+(dy + doorLen).toFixed(1)}" stroke="#B45309" stroke-width="2.2"/>
+          <path d="M ${dx} ${+(dy + doorLen).toFixed(1)} A ${doorLen} ${doorLen} 0 0 0 ${+(dx + doorLen).toFixed(1)} ${dy}" fill="none" stroke="#D97706" stroke-width="1.4" stroke-dasharray="3 2"/>
         `;
       } else if (d.wall === 'west') {
         const dx = rx;
         const dy = +(ry + rh * d.offsetRatio - doorLen / 2).toFixed(1);
         roomElements += `
-          <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${+(dy + doorLen).toFixed(1)}" stroke="${fill}" stroke-width="6"/>
-          <line x1="${dx}" y1="${dy}" x2="${+(dx + doorLen).toFixed(1)}" y2="${dy}" stroke="#DAA520" stroke-width="2"/>
-          <path d="M ${+(dx + doorLen).toFixed(1)} ${dy} A ${doorLen} ${doorLen} 0 0 1 ${dx} ${+(dy + doorLen).toFixed(1)}" fill="none" stroke="#DAA520" stroke-width="1.3" stroke-dasharray="3 2"/>
+          <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${+(dy + doorLen).toFixed(1)}" stroke="${fill}" stroke-width="7"/>
+          <line x1="${dx}" y1="${dy}" x2="${+(dx + doorLen).toFixed(1)}" y2="${dy}" stroke="#B45309" stroke-width="2.2"/>
+          <path d="M ${+(dx + doorLen).toFixed(1)} ${dy} A ${doorLen} ${doorLen} 0 0 1 ${dx} ${+(dy + doorLen).toFixed(1)}" fill="none" stroke="#D97706" stroke-width="1.4" stroke-dasharray="3 2"/>
         `;
       } else if (d.wall === 'east') {
         const dx = +(rx + rw).toFixed(1);
         const dy = +(ry + rh * d.offsetRatio - doorLen / 2).toFixed(1);
         roomElements += `
-          <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${+(dy + doorLen).toFixed(1)}" stroke="${fill}" stroke-width="6"/>
-          <line x1="${dx}" y1="${dy}" x2="${+(dx - doorLen).toFixed(1)}" y2="${dy}" stroke="#DAA520" stroke-width="2"/>
-          <path d="M ${+(dx - doorLen).toFixed(1)} ${dy} A ${doorLen} ${doorLen} 0 0 0 ${dx} ${+(dy + doorLen).toFixed(1)}" fill="none" stroke="#DAA520" stroke-width="1.3" stroke-dasharray="3 2"/>
+          <line x1="${dx}" y1="${dy}" x2="${dx}" y2="${+(dy + doorLen).toFixed(1)}" stroke="${fill}" stroke-width="7"/>
+          <line x1="${dx}" y1="${dy}" x2="${+(dx - doorLen).toFixed(1)}" y2="${dy}" stroke="#B45309" stroke-width="2.2"/>
+          <path d="M ${+(dx - doorLen).toFixed(1)} ${dy} A ${doorLen} ${doorLen} 0 0 0 ${dx} ${+(dy + doorLen).toFixed(1)}" fill="none" stroke="#D97706" stroke-width="1.4" stroke-dasharray="3 2"/>
         `;
       }
     }
@@ -691,10 +756,13 @@ function render2DFloorPlanSvg(model) {
     // Room Code, Name, Dimensions, and Area Labels
     const fontSizeTitle = rw < 95 || rh < 65 ? 10 : 12.5;
     const fontSizeDim = rw < 95 || rh < 65 ? 9.5 : 11;
+    const labelW = Math.min(rw - 8, Math.max(96, r.name.length * 6.8 + 18));
+    const labelH = rh < 54 ? 34 : 42;
     roomElements += `
-        <text x="${cx}" y="${+(cy - 10).toFixed(1)}" text-anchor="middle" fill="#DAA520" font-family="Arial, sans-serif" font-size="${fontSizeTitle - 2}" font-weight="bold" letter-spacing="0.8">${escXml(r.code)}</text>
-        <text x="${cx}" y="${+(cy + 4).toFixed(1)}" text-anchor="middle" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="${fontSizeTitle}" font-weight="bold">${escXml(r.name)}</text>
-        <text x="${cx}" y="${+(cy + 19).toFixed(1)}" text-anchor="middle" fill="#94A3B8" font-family="monospace" font-size="${fontSizeDim}">${r.width}' × ${r.depth}' (${r.areaSqFt} sq.ft)</text>
+        <rect x="${+(cx - labelW / 2).toFixed(1)}" y="${+(cy - labelH / 2 + 2).toFixed(1)}" width="${+labelW.toFixed(1)}" height="${labelH}" rx="5" fill="#FFFFFF" fill-opacity="0.88" stroke="#CBD5E1" stroke-width="1"/>
+        <text x="${cx}" y="${+(cy - 9).toFixed(1)}" text-anchor="middle" fill="#B45309" font-family="Arial, sans-serif" font-size="${fontSizeTitle - 2}" font-weight="bold" letter-spacing="0.8">${escXml(r.code)}</text>
+        <text x="${cx}" y="${+(cy + 4).toFixed(1)}" text-anchor="middle" fill="#0F172A" font-family="Arial, sans-serif" font-size="${fontSizeTitle}" font-weight="bold">${escXml(r.name)}</text>
+        <text x="${cx}" y="${+(cy + 18).toFixed(1)}" text-anchor="middle" fill="#334155" font-family="monospace" font-size="${fontSizeDim}" font-weight="bold">${r.width}' × ${r.depth}' (${r.areaSqFt} sq.ft)</text>
       </g>
     `;
   }
@@ -708,81 +776,82 @@ function render2DFloorPlanSvg(model) {
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}">
   <defs>
     <pattern id="cadGrid" width="25" height="25" patternUnits="userSpaceOnUse">
-      <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#1E293B" stroke-width="0.8"/>
+      <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#E2E8F0" stroke-width="0.9"/>
     </pattern>
   </defs>
 
   <!-- CAD Sheet Background -->
-  <rect width="${svgW}" height="${svgH}" fill="#070E1A"/>
-  <rect x="20" y="20" width="${svgW - 40}" height="${svgH - 40}" fill="url(#cadGrid)" stroke="#DAA520" stroke-opacity="0.55" stroke-width="2"/>
+  <rect width="${svgW}" height="${svgH}" fill="#FAF8F5"/>
+  <rect x="20" y="20" width="${svgW - 40}" height="${svgH - 40}" fill="#FFFFFF" stroke="#B45309" stroke-opacity="0.55" stroke-width="2"/>
+  <rect x="20" y="94" width="${svgW - 40}" height="${svgH - 114}" fill="url(#cadGrid)"/>
 
   <!-- Top Header Banner -->
-  <rect x="20" y="20" width="${svgW - 40}" height="74" fill="#0B1526" stroke="#DAA520" stroke-opacity="0.45" stroke-width="1"/>
-  <text x="44" y="52" fill="#DAA520" font-family="Arial, sans-serif" font-size="13" font-weight="bold" letter-spacing="1.5">BOOLOK BIM SPECIFICATION CORE · PHASE 3 ORTHOGRAPHIC CAD SHEET</text>
-  <text x="44" y="76" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="20" font-weight="bold">2D ARCHITECTURAL FLOOR PLAN — ${plot.rawWidth} × ${plot.rawDepth} ${plot.displayUnit.toUpperCase()} (${program.bedrooms} BHK · ${program.stories === 1 ? 'GROUND FLOOR' : `G+${program.stories - 1}`})</text>
+  <rect x="20" y="20" width="${svgW - 40}" height="74" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+  <text x="44" y="49" fill="#B45309" font-family="Arial, sans-serif" font-size="13" font-weight="bold" letter-spacing="1.5">BOOLOK BIM SPECIFICATION CORE · PHASE 3 ORTHOGRAPHIC CAD SHEET</text>
+  <text x="44" y="75" fill="#0F172A" font-family="Arial, sans-serif" font-size="20" font-weight="bold">2D ARCHITECTURAL FLOOR PLAN — ${plot.rawWidth} × ${plot.rawDepth} ${plot.displayUnit.toUpperCase()} (${program.bedrooms} BHK · ${program.stories === 1 ? 'GROUND FLOOR' : `G+${program.stories - 1}`})</text>
 
   <!-- Compass / North Arrow -->
   <g transform="translate(${svgW - 85}, 57)">
-    <circle cx="0" cy="0" r="22" fill="#0F1D33" stroke="#DAA520" stroke-width="1.5"/>
-    <polygon points="0,-16 -6,6 0,2 6,6" fill="#DAA520"/>
-    <text x="0" y="17" text-anchor="middle" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="9" font-weight="bold">N</text>
+    <circle cx="0" cy="0" r="22" fill="#FFFFFF" stroke="#B45309" stroke-width="1.8"/>
+    <polygon points="0,-16 -6,6 0,2 6,6" fill="#B45309"/>
+    <text x="0" y="17" text-anchor="middle" fill="#0F172A" font-family="Arial, sans-serif" font-size="9.5" font-weight="bold">N</text>
   </g>
 
   <!-- Outer Plot Boundary -->
-  <rect x="${ox}" y="${oy}" width="${drawPlotW}" height="${drawPlotH}" fill="#0B1528" stroke="#64748B" stroke-width="2.5" stroke-dasharray="10 5"/>
+  <rect x="${ox}" y="${oy}" width="${drawPlotW}" height="${drawPlotH}" fill="#F1F5F9" stroke="#334155" stroke-width="2.5" stroke-dasharray="10 5"/>
 
   <!-- Setback-Constrained Buildable Envelope Outline -->
-  <rect x="${envX}" y="${envY}" width="${envW}" height="${envH}" fill="none" stroke="#22C55E" stroke-opacity="0.65" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <rect x="${envX}" y="${envY}" width="${envW}" height="${envH}" fill="#FFFFFF" stroke="#16A34A" stroke-opacity="0.85" stroke-width="1.8" stroke-dasharray="5 4"/>
 
   <!-- Placed Rooms, Walls, Doors, Windows & Annotations -->
   ${roomElements}
 
   <!-- Outer Plot Dimension Callouts -->
-  <line x1="${ox}" y1="${+(oy - 22).toFixed(1)}" x2="${+(ox + drawPlotW).toFixed(1)}" y2="${+(oy - 22).toFixed(1)}" stroke="#DAA520" stroke-width="1.5"/>
-  <text x="${+(ox + drawPlotW / 2).toFixed(1)}" y="${+(oy - 28).toFixed(1)}" text-anchor="middle" fill="#DAA520" font-family="monospace" font-size="12" font-weight="bold">PLOT WIDTH: ${plot.widthFt}' (${envelope.widthFt}' BUILDABLE ENVELOPE)</text>
+  <line x1="${ox}" y1="${+(oy - 22).toFixed(1)}" x2="${+(ox + drawPlotW).toFixed(1)}" y2="${+(oy - 22).toFixed(1)}" stroke="#0F172A" stroke-width="1.6"/>
+  <text x="${+(ox + drawPlotW / 2).toFixed(1)}" y="${+(oy - 28).toFixed(1)}" text-anchor="middle" fill="#0F172A" font-family="monospace" font-size="12" font-weight="bold">PLOT WIDTH: ${plot.widthFt}' (${envelope.widthFt}' BUILDABLE ENVELOPE)</text>
 
-  <line x1="${+(ox - 24).toFixed(1)}" y1="${oy}" x2="${+(ox - 24).toFixed(1)}" y2="${+(oy + drawPlotH).toFixed(1)}" stroke="#DAA520" stroke-width="1.5"/>
-  <text x="${+(ox - 34).toFixed(1)}" y="${+(oy + drawPlotH / 2).toFixed(1)}" text-anchor="middle" fill="#DAA520" font-family="monospace" font-size="12" font-weight="bold" transform="rotate(-90 ${+(ox - 34).toFixed(1)} ${+(oy + drawPlotH / 2).toFixed(1)})">PLOT DEPTH: ${plot.depthFt}' (${envelope.depthFt}' ENVELOPE)</text>
+  <line x1="${+(ox - 24).toFixed(1)}" y1="${oy}" x2="${+(ox - 24).toFixed(1)}" y2="${+(oy + drawPlotH).toFixed(1)}" stroke="#0F172A" stroke-width="1.6"/>
+  <text x="${+(ox - 34).toFixed(1)}" y="${+(oy + drawPlotH / 2).toFixed(1)}" text-anchor="middle" fill="#0F172A" font-family="monospace" font-size="12" font-weight="bold" transform="rotate(-90 ${+(ox - 34).toFixed(1)} ${+(oy + drawPlotH / 2).toFixed(1)})">PLOT DEPTH: ${plot.depthFt}' (${envelope.depthFt}' ENVELOPE)</text>
 
   <!-- Setback Callout Labels -->
-  <text x="${+(ox + drawPlotW / 2).toFixed(1)}" y="${+(oy + 14).toFixed(1)}" text-anchor="middle" fill="#38BDF8" font-family="monospace" font-size="10">REAR SETBACK: ${setbacks.rearFt} FT</text>
-  <text x="${+(ox + drawPlotW / 2).toFixed(1)}" y="${+(oy + drawPlotH - 6).toFixed(1)}" text-anchor="middle" fill="#38BDF8" font-family="monospace" font-size="10">FRONT SETBACK: ${setbacks.frontFt} FT  |  LEFT: ${setbacks.leftFt} FT  |  RIGHT: ${setbacks.rightFt} FT</text>
+  <text x="${+(ox + drawPlotW / 2).toFixed(1)}" y="${+(oy + 14).toFixed(1)}" text-anchor="middle" fill="#0369A1" font-family="monospace" font-size="10.5" font-weight="bold">REAR SETBACK: ${setbacks.rearFt} FT</text>
+  <text x="${+(ox + drawPlotW / 2).toFixed(1)}" y="${+(oy + drawPlotH - 6).toFixed(1)}" text-anchor="middle" fill="#0369A1" font-family="monospace" font-size="10.5" font-weight="bold">FRONT SETBACK: ${setbacks.frontFt} FT  |  LEFT: ${setbacks.leftFt} FT  |  RIGHT: ${setbacks.rightFt} FT</text>
 
   <!-- Front Access Road Banner -->
-  <rect x="${ox}" y="${+(oy + drawPlotH + 12).toFixed(1)}" width="${drawPlotW}" height="34" rx="4" fill="#131E31" stroke="#475569" stroke-width="1.2"/>
-  <text x="${+(ox + drawPlotW / 2).toFixed(1)}" y="${+(oy + drawPlotH + 33).toFixed(1)}" text-anchor="middle" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="12" font-weight="bold" letter-spacing="1.2">PRIMARY ACCESS ROAD (${plot.facing.toUpperCase()} FRONTAGE · ${plot.roadWidth} FT ROW)</text>
+  <rect x="${ox}" y="${+(oy + drawPlotH + 12).toFixed(1)}" width="${drawPlotW}" height="34" rx="4" fill="#334155" stroke="#0F172A" stroke-width="1.2"/>
+  <text x="${+(ox + drawPlotW / 2).toFixed(1)}" y="${+(oy + drawPlotH + 33).toFixed(1)}" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="12" font-weight="bold" letter-spacing="1.2">PRIMARY ACCESS ROAD (${plot.facing.toUpperCase()} FRONTAGE · ${plot.roadWidth} FT ROW)</text>
 
   <!-- Bottom Architectural Title Block & Area Verification Schedule -->
-  <rect x="36" y="940" width="${svgW - 72}" height="202" rx="8" fill="#0B1526" stroke="#DAA520" stroke-opacity="0.55" stroke-width="1.5"/>
-  <line x1="36" y1="978" x2="${svgW - 36}" y2="978" stroke="#1E293B" stroke-width="1.2"/>
-  <text x="54" y="964" fill="#DAA520" font-family="Arial, sans-serif" font-size="12" font-weight="bold" letter-spacing="1">CANONICAL AREA &amp; GEOMETRY SCHEDULE (DERIVED FROM UNIFIED LAYOUT MODEL)</text>
-  <text x="${svgW - 54}" y="964" text-anchor="end" fill="#22C55E" font-family="monospace" font-size="11" font-weight="bold">GEOMETRY VALIDATED · ZERO ROOM OVERLAP</text>
+  <rect x="36" y="940" width="${svgW - 72}" height="202" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.6"/>
+  <line x1="36" y1="978" x2="${svgW - 36}" y2="978" stroke="#CBD5E1" stroke-width="1.2"/>
+  <text x="54" y="964" fill="#B45309" font-family="Arial, sans-serif" font-size="12" font-weight="bold" letter-spacing="1">CANONICAL AREA &amp; GEOMETRY SCHEDULE (DERIVED FROM UNIFIED LAYOUT MODEL)</text>
+  <text x="${svgW - 54}" y="964" text-anchor="end" fill="#15803D" font-family="monospace" font-size="11" font-weight="bold">GEOMETRY VALIDATED · ZERO ROOM OVERLAP</text>
 
   <!-- 3 Columns in Title Block -->
-  <text x="54" y="1004" fill="#94A3B8" font-family="Arial, sans-serif" font-size="12">1. Gross Plot Area (${plot.widthFt}' × ${plot.depthFt}'):</text>
-  <text x="330" y="1004" text-anchor="end" fill="#F8FAFC" font-family="monospace" font-size="12" font-weight="bold">${areas.plotAreaSqFt.toLocaleString()} sq.ft</text>
+  <text x="54" y="1004" fill="#475569" font-family="Arial, sans-serif" font-size="12">1. Gross Plot Area (${plot.widthFt}' × ${plot.depthFt}'):</text>
+  <text x="330" y="1004" text-anchor="end" fill="#0F172A" font-family="monospace" font-size="12" font-weight="bold">${areas.plotAreaSqFt.toLocaleString()} sq.ft</text>
 
-  <text x="54" y="1028" fill="#94A3B8" font-family="Arial, sans-serif" font-size="12">2. Setback-Constrained Envelope (${envelope.widthFt}' × ${envelope.depthFt}'):</text>
-  <text x="330" y="1028" text-anchor="end" fill="#38BDF8" font-family="monospace" font-size="12" font-weight="bold">${areas.buildingEnvelopeSqFt.toLocaleString()} sq.ft</text>
+  <text x="54" y="1028" fill="#475569" font-family="Arial, sans-serif" font-size="12">2. Setback-Constrained Envelope (${envelope.widthFt}' × ${envelope.depthFt}'):</text>
+  <text x="330" y="1028" text-anchor="end" fill="#0369A1" font-family="monospace" font-size="12" font-weight="bold">${areas.buildingEnvelopeSqFt.toLocaleString()} sq.ft</text>
 
-  <text x="54" y="1052" fill="#94A3B8" font-family="Arial, sans-serif" font-size="12">3. Ground Enclosed + Semi-Open Built-Up:</text>
-  <text x="330" y="1052" text-anchor="end" fill="#22C55E" font-family="monospace" font-size="12" font-weight="bold">${areas.groundFloorFootprintSqFt.toLocaleString()} sq.ft (${areas.groundCoveragePct}%)</text>
+  <text x="54" y="1052" fill="#475569" font-family="Arial, sans-serif" font-size="12">3. Ground Enclosed + Semi-Open Built-Up:</text>
+  <text x="330" y="1052" text-anchor="end" fill="#15803D" font-family="monospace" font-size="12" font-weight="bold">${areas.groundFloorFootprintSqFt.toLocaleString()} sq.ft (${areas.groundCoveragePct}%)</text>
 
-  <text x="54" y="1076" fill="#94A3B8" font-family="Arial, sans-serif" font-size="12">4. Total Multi-Floor Built-Up (${program.stories} Floor${program.stories > 1 ? 's' : ''}):</text>
-  <text x="330" y="1076" text-anchor="end" fill="#DAA520" font-family="monospace" font-size="12" font-weight="bold">${areas.totalBuiltUpAreaSqFt.toLocaleString()} sq.ft</text>
+  <text x="54" y="1076" fill="#475569" font-family="Arial, sans-serif" font-size="12">4. Total Multi-Floor Built-Up (${program.stories} Floor${program.stories > 1 ? 's' : ''}):</text>
+  <text x="330" y="1076" text-anchor="end" fill="#B45309" font-family="monospace" font-size="12" font-weight="bold">${areas.totalBuiltUpAreaSqFt.toLocaleString()} sq.ft</text>
 
-  <text x="54" y="1100" fill="#94A3B8" font-family="Arial, sans-serif" font-size="12">5. Unobstructed Setback Open Space:</text>
-  <text x="330" y="1100" text-anchor="end" fill="#E2E8F0" font-family="monospace" font-size="12" font-weight="bold">${areas.setbackOpenAreaSqFt.toLocaleString()} sq.ft</text>
+  <text x="54" y="1100" fill="#475569" font-family="Arial, sans-serif" font-size="12">5. Unobstructed Setback Open Space:</text>
+  <text x="330" y="1100" text-anchor="end" fill="#334155" font-family="monospace" font-size="12" font-weight="bold">${areas.setbackOpenAreaSqFt.toLocaleString()} sq.ft</text>
 
-  <line x1="360" y1="984" x2="360" y2="1132" stroke="#1E293B" stroke-width="1.2"/>
+  <line x1="360" y1="984" x2="360" y2="1132" stroke="#CBD5E1" stroke-width="1.2"/>
 
-  <text x="382" y="1002" fill="#DAA520" font-family="Arial, sans-serif" font-size="11" font-weight="bold">ROOM SCHEDULE (${rooms.length} ZONES PLACED ON GROUND LEVEL):</text>
+  <text x="382" y="1002" fill="#B45309" font-family="Arial, sans-serif" font-size="11" font-weight="bold">ROOM SCHEDULE (${rooms.length} ZONES PLACED ON GROUND LEVEL):</text>
   ${rooms
     .slice(0, 10)
     .map((r, idx) => {
       const col = idx < 5 ? 382 : 680;
       const rowY = 1024 + (idx % 5) * 19;
-      return `<text x="${col}" y="${rowY}" fill="#E2E8F0" font-family="monospace" font-size="10.5">${escXml(r.code)} ${escXml(r.name.slice(0, 20))}: ${r.width}'×${r.depth}' (${r.areaSqFt} sf)</text>`;
+      return `<text x="${col}" y="${rowY}" fill="#0F172A" font-family="monospace" font-size="10.5" font-weight="bold">${escXml(r.code)} ${escXml(r.name.slice(0, 20))}: ${r.width}'×${r.depth}' (${r.areaSqFt} sf)</text>`;
     })
     .join('\n  ')}
 
@@ -799,18 +868,38 @@ function render3DCutawaySvg(model) {
   const { plot, setbacks, envelope, areas, rooms, program } = model;
   const svgW = 1000;
   const svgH = 1100;
-
-  // Isometric projection helper from canonical (x, y, z) in feet:
-  // x: 0 -> plotWidthFt (West to East)
-  // y: 0 -> plotDepthFt (Rear/North to Front/South)
-  // z: 0 -> wallHeightFt (Vertical extrusion)
-  const spanSum = plot.widthFt + plot.depthFt;
-  const isoScale = Math.min(390 / spanSum, 15);
   const cos30 = 0.866025;
   const sin30 = 0.5;
+  const wallH = 9.5; // 9.5 ft cutaway wall height
 
-  const originX = +(svgW / 2 + (plot.depthFt - plot.widthFt) * cos30 * isoScale * 0.5).toFixed(1);
-  const originY = 195;
+  const rawPts = [
+    [0, 0, 0],
+    [plot.widthFt, 0, 0],
+    [plot.widthFt, plot.depthFt, 0],
+    [0, plot.depthFt, 0],
+    [0, 0, wallH],
+    [plot.widthFt, 0, wallH],
+    [plot.widthFt, plot.depthFt, wallH],
+    [0, plot.depthFt, wallH],
+    [0, plot.depthFt + 3.5, -1.8],
+  ];
+  let uMinX = Infinity, uMaxX = -Infinity, uMinY = Infinity, uMaxY = -Infinity;
+  for (const [rx, ry, rz] of rawPts) {
+    const ux = (rx - ry) * cos30;
+    const uy = (rx + ry) * sin30 - rz * 0.92;
+    if (ux < uMinX) uMinX = ux;
+    if (ux > uMaxX) uMaxX = ux;
+    if (uy < uMinY) uMinY = uy;
+    if (uy > uMaxY) uMaxY = uy;
+  }
+
+  const targetW = 860;
+  const targetH = 740;
+  const isoScale = +(Math.min(targetW / Math.max(1, uMaxX - uMinX), targetH / Math.max(1, uMaxY - uMinY), 22)).toFixed(2);
+  const centerX = 500;
+  const centerY = 505;
+  const originX = +(centerX - ((uMinX + uMaxX) / 2) * isoScale).toFixed(1);
+  const originY = +(centerY - ((uMinY + uMaxY) / 2) * isoScale).toFixed(1);
 
   const isoPt = (xFt, yFt, zFt = 0) => {
     const sx = originX + (xFt - yFt) * cos30 * isoScale;
@@ -820,18 +909,28 @@ function render3DCutawaySvg(model) {
 
   const polyStr = (pts) => pts.map((p) => `${p[0]},${p[1]}`).join(' ');
 
+  const isoBox = (bx0, by0, bx1, by1, bz0, bz1, topFill, leftFill, rightFill, strokeCol = '#1E293B') => {
+    const topP = [isoPt(bx0, by0, bz1), isoPt(bx1, by0, bz1), isoPt(bx1, by1, bz1), isoPt(bx0, by1, bz1)];
+    const southP = [isoPt(bx0, by1, bz0), isoPt(bx1, by1, bz0), isoPt(bx1, by1, bz1), isoPt(bx0, by1, bz1)];
+    const eastP = [isoPt(bx1, by0, bz0), isoPt(bx1, by1, bz0), isoPt(bx1, by1, bz1), isoPt(bx1, by0, bz1)];
+    return `
+      <polygon points="${polyStr(southP)}" fill="${leftFill}" stroke="${strokeCol}" stroke-width="0.9"/>
+      <polygon points="${polyStr(eastP)}" fill="${rightFill}" stroke="${strokeCol}" stroke-width="0.9"/>
+      <polygon points="${polyStr(topP)}" fill="${topFill}" stroke="${strokeCol}" stroke-width="1"/>
+    `;
+  };
+
   const floorColors = {
-    private: '#1E3A5F',
-    public: '#23486A',
-    wet: '#164E63',
-    circulation: '#2D3A4F',
-    service: '#273449',
-    parking: '#1E293B',
+    private: '#D9B99B',
+    public: '#E6CCB2',
+    wet: '#BAE6FD',
+    circulation: '#E2E8F0',
+    service: '#CBD5E1',
+    parking: '#94A3B8',
   };
 
   // Sort rooms back-to-front in isometric painter's order ((x + y) ascending)
   const sortedRooms = [...rooms].sort((a, b) => a.x + a.y - (b.x + b.y));
-  const wallH = 9.5; // 9.5 ft cutaway wall height
 
   // Plot base slab
   const plotSlabPts = [
@@ -842,9 +941,9 @@ function render3DCutawaySvg(model) {
   ];
 
   const plotSlabBottomPts = [
-    isoPt(0, plot.depthFt, -1.5),
-    isoPt(plot.widthFt, plot.depthFt, -1.5),
-    isoPt(plot.widthFt, 0, -1.5),
+    isoPt(0, plot.depthFt, -1.6),
+    isoPt(plot.widthFt, plot.depthFt, -1.6),
+    isoPt(plot.widthFt, 0, -1.6),
   ];
 
   // Envelope boundary on ground
@@ -863,7 +962,8 @@ function render3DCutawaySvg(model) {
     const x1 = +(r.x + r.width).toFixed(2);
     const y1 = +(r.y + r.depth).toFixed(2);
     const h = r.isSemiOpen ? 4.2 : wallH;
-    const floorFill = floorColors[r.category] || '#1E3A5F';
+    const wallT = 0.65;
+    const floorFill = floorColors[r.category] || '#E2E8F0';
 
     // Floor tile polygon
     const fPts = [isoPt(x0, y0, 0.2), isoPt(x1, y0, 0.2), isoPt(x1, y1, 0.2), isoPt(x0, y1, 0.2)];
@@ -876,71 +976,120 @@ function render3DCutawaySvg(model) {
     const eastWallPts = [isoPt(x1, y0, 0.2), isoPt(x1, y1, 0.2), isoPt(x1, y1, h), isoPt(x1, y0, h)];
     const southWallPts = [isoPt(x0, y1, 0.2), isoPt(x1, y1, 0.2), isoPt(x1, y1, h), isoPt(x0, y1, h)];
 
+    const northWallCap = [isoPt(x0, y0, h), isoPt(x1, y0, h), isoPt(x1, y0 + wallT, h), isoPt(x0, y0 + wallT, h)];
+    const westWallCap = [isoPt(x0, y0, h), isoPt(x0 + wallT, y0, h), isoPt(x0 + wallT, y1, h), isoPt(x0, y1, h)];
+
     // Top wall cap outline at z = h
     const topCapPts = [isoPt(x0, y0, h), isoPt(x1, y0, h), isoPt(x1, y1, h), isoPt(x0, y1, h)];
 
     // Center point for room label at mid-height
-    const [cx, cy] = isoPt((x0 + x1) / 2, (y0 + y1) / 2, h * 0.42);
+    const [cx, cy] = isoPt((x0 + x1) / 2, (y0 + y1) / 2, h * 0.48);
 
-    // Isometric furniture block inside the room (derived from same room geometry)
+    // 3D Volumetric Furniture inside room
     let furnSvg = '';
-    if (r.furniture === 'bed_double') {
-      const bx0 = x0 + 1.2;
-      const by0 = y0 + 1.2;
-      const bx1 = Math.min(x1 - 1.2, bx0 + 6.0);
+    if (r.furniture === 'bed_double' && r.width >= 7 && r.depth >= 7) {
+      const bx0 = x0 + 1.1;
+      const by0 = y0 + 0.9;
+      const bx1 = Math.min(x1 - 1.2, bx0 + 6.2);
       const by1 = Math.min(y1 - 1.2, by0 + 6.5);
-      const bedTop = [isoPt(bx0, by0, 2.2), isoPt(bx1, by0, 2.2), isoPt(bx1, by1, 2.2), isoPt(bx0, by1, 2.2)];
-      furnSvg = `<polygon points="${polyStr(bedTop)}" fill="#F59E0B" fill-opacity="0.38" stroke="#FBBF24" stroke-width="1"/>`;
-    } else if (r.furniture === 'living_sofa') {
-      const sx0 = x0 + 1.5;
-      const sy0 = y0 + 1.5;
-      const sx1 = Math.min(x1 - 1.5, sx0 + 6.5);
-      const sy1 = Math.min(y1 - 1.5, sy0 + 3.2);
-      const sofaTop = [isoPt(sx0, sy0, 2.4), isoPt(sx1, sy0, 2.4), isoPt(sx1, sy1, 2.4), isoPt(sx0, sy1, 2.4)];
-      furnSvg = `<polygon points="${polyStr(sofaTop)}" fill="#38BDF8" fill-opacity="0.35" stroke="#7DD3FC" stroke-width="1"/>`;
-    } else if (r.furniture === 'kitchen_counter') {
-      const kx0 = Math.max(x0 + 1, x1 - 2.4);
-      const ky0 = y0 + 1;
-      const kx1 = x1 - 0.4;
-      const ky1 = y1 - 1;
-      const kTop = [isoPt(kx0, ky0, 2.8), isoPt(kx1, ky0, 2.8), isoPt(kx1, ky1, 2.8), isoPt(kx0, ky1, 2.8)];
-      furnSvg = `<polygon points="${polyStr(kTop)}" fill="#10B981" fill-opacity="0.4" stroke="#34D399" stroke-width="1"/>`;
+      furnSvg += isoBox(bx0, by0, bx1, by0 + 0.5, 0.2, 3.8, '#78350F', '#451A03', '#5C2406');
+      furnSvg += isoBox(bx0, by0 + 0.5, bx1, by1, 0.2, 1.9, '#F8FAFC', '#CBD5E1', '#E2E8F0');
+      furnSvg += isoBox(bx0, by0 + 2.5, bx1, by1, 1.9, 2.05, '#F59E0B', '#B45309', '#D97706');
+      furnSvg += isoBox(bx0 + 0.5, by0 + 0.7, (bx0 + bx1) / 2 - 0.2, by0 + 1.8, 1.9, 2.3, '#FFFFFF', '#E2E8F0', '#F1F5F9');
+      furnSvg += isoBox((bx0 + bx1) / 2 + 0.2, by0 + 0.7, bx1 - 0.5, by0 + 1.8, 1.9, 2.3, '#FFFFFF', '#E2E8F0', '#F1F5F9');
+      if (x1 - bx1 > 2.2) {
+        furnSvg += isoBox(x1 - 1.8, y0 + 1.0, x1 - 0.3, Math.min(y1 - 1.0, y0 + 6.2), 0.2, 6.8, '#B45309', '#78350F', '#92400E');
+      }
+    } else if (r.furniture === 'bed_twin' && r.width >= 6.5 && r.depth >= 6.5) {
+      const bx0 = x0 + 1.0;
+      const by0 = y0 + 0.9;
+      const bx1 = Math.min(x1 - 1.0, bx0 + 4.8);
+      const by1 = Math.min(y1 - 1.0, by0 + 6.2);
+      furnSvg += isoBox(bx0, by0, bx1, by0 + 0.45, 0.2, 3.5, '#78350F', '#451A03', '#5C2406');
+      furnSvg += isoBox(bx0, by0 + 0.45, bx1, by1, 0.2, 1.85, '#F8FAFC', '#CBD5E1', '#E2E8F0');
+      furnSvg += isoBox(bx0, by0 + 2.3, bx1, by1, 1.85, 2.0, '#38BDF8', '#0369A1', '#0284C7');
+      furnSvg += isoBox(bx0 + 0.6, by0 + 0.7, bx1 - 0.6, by0 + 1.7, 1.85, 2.25, '#FFFFFF', '#E2E8F0', '#F1F5F9');
+    } else if (r.furniture === 'living_sofa' && r.width >= 7 && r.depth >= 6.5) {
+      const sx0 = x0 + 1.2;
+      const sy0 = y0 + 1.1;
+      const sx1 = Math.min(x1 - 1.4, sx0 + 7.2);
+      const sy1 = Math.min(y1 - 1.4, sy0 + 2.8);
+      furnSvg += isoBox(sx0, sy0, sx1, sy0 + 0.7, 0.2, 2.9, '#B45309', '#78350F', '#92400E');
+      furnSvg += isoBox(sx0, sy0 + 0.7, sx1, sy1, 0.2, 1.6, '#F59E0B', '#B45309', '#D97706');
+      furnSvg += isoBox(sx0, sy1, sx0 + 2.4, Math.min(y1 - 1.2, sy1 + 3.2), 0.2, 1.6, '#F59E0B', '#B45309', '#D97706');
+      if (sy1 + 2.6 < y1 - 0.8) {
+        furnSvg += isoBox(sx0 + 3.0, sy1 + 0.8, Math.min(x1 - 1.5, sx0 + 6.4), sy1 + 2.4, 0.2, 1.3, '#E2E8F0', '#64748B', '#94A3B8');
+      }
+    } else if (r.furniture === 'dining_table' && r.width >= 6.5 && r.depth >= 6) {
+      const tx0 = x0 + Math.max(1.4, r.width * 0.2);
+      const ty0 = y0 + Math.max(1.2, r.depth * 0.22);
+      const tx1 = Math.min(x1 - 1.4, tx0 + 5.6);
+      const ty1 = Math.min(y1 - 1.2, ty0 + 3.4);
+      furnSvg += isoBox(tx0, ty0, tx1, ty1, 0.2, 2.5, '#D97706', '#78350F', '#92400E');
+      furnSvg += isoBox(tx0 + 0.6, ty0 - 0.7, tx0 + 1.8, ty0 - 0.1, 0.2, 1.6, '#FDE68A', '#92400E', '#B45309');
+      furnSvg += isoBox(tx1 - 1.8, ty0 - 0.7, tx1 - 0.6, ty0 - 0.1, 0.2, 1.6, '#FDE68A', '#92400E', '#B45309');
+    } else if (r.furniture === 'kitchen_counter' && r.width >= 5.5 && r.depth >= 5.5) {
+      const kx0 = Math.max(x0 + 1.0, x1 - 2.3);
+      const ky0 = y0 + 0.9;
+      const kx1 = x1 - 0.35;
+      const ky1 = y1 - 0.6;
+      furnSvg += isoBox(kx0, ky0, kx1, ky1, 0.2, 2.9, '#F1F5F9', '#475569', '#64748B');
+      furnSvg += isoBox(x0 + 1.2, Math.max(y0 + 1.0, y1 - 2.3), kx0, ky1, 0.2, 2.9, '#F1F5F9', '#475569', '#64748B');
+      furnSvg += isoBox(kx0 + 0.25, ky0 + 1.0, kx1 - 0.25, Math.min(ky1 - 1.0, ky0 + 2.8), 2.9, 3.05, '#38BDF8', '#0284C7', '#0369A1');
+    } else if (r.furniture === 'bath_fixtures' && r.width >= 4 && r.depth >= 4) {
+      furnSvg += isoBox(x0 + 0.7, y0 + 0.7, Math.min(x1 - 0.7, x0 + 2.4), Math.min(y1 - 0.7, y0 + 2.0), 0.2, 2.6, '#FFFFFF', '#94A3B8', '#CBD5E1');
+      furnSvg += isoBox(Math.max(x0 + 0.8, x1 - 2.2), y0 + 0.7, x1 - 0.6, Math.min(y1 - 0.7, y0 + 2.2), 0.2, 1.8, '#E0F2FE', '#0284C7', '#38BDF8');
+    } else if (r.furniture === 'stairs' && r.width >= 5 && r.depth >= 3.2) {
+      for (let s = 0; s < 4; s++) {
+        const sx0 = x0 + 0.8 + s * ((r.width - 1.6) / 4);
+        const sx1 = sx0 + (r.width - 1.6) / 4;
+        furnSvg += isoBox(sx0, y0 + 0.6, sx1, y1 - 0.6, 0.2, 1.2 + s * 1.4, '#CBD5E1', '#475569', '#64748B');
+      }
+    } else if (r.furniture === 'car_bay' && r.width >= 7 && r.depth >= 9) {
+      const cx0 = x0 + Math.max(1.2, (r.width - 5.4) / 2);
+      const cy0 = y0 + Math.max(1.4, (r.depth - 10.5) / 2);
+      const cx1 = Math.min(x1 - 1.2, cx0 + 5.4);
+      const cy1 = Math.min(y1 - 1.4, cy0 + 10.5);
+      furnSvg += isoBox(cx0, cy0, cx1, cy1, 0.3, 2.4, '#38BDF8', '#0369A1', '#0284C7');
+      furnSvg += isoBox(cx0 + 0.4, cy0 + 2.2, cx1 - 0.4, cy1 - 2.0, 2.4, 3.8, '#BAE6FD', '#0284C7', '#38BDF8');
     }
 
     isoRoomsSvg += `
       <g>
         <!-- Room Floor Slab -->
-        <polygon points="${polyStr(fPts)}" fill="${floorFill}" stroke="#94A3B8" stroke-width="1.2"/>
+        <polygon points="${polyStr(fPts)}" fill="${floorFill}" stroke="#475569" stroke-width="1.3"/>
         <!-- Rear/Side Walls (Shaded) -->
-        <polygon points="${polyStr(northWallPts)}" fill="#334155" fill-opacity="0.88" stroke="#64748B" stroke-width="1"/>
-        <polygon points="${polyStr(westWallPts)}" fill="#1E293B" fill-opacity="0.88" stroke="#64748B" stroke-width="1"/>
+        <polygon points="${polyStr(northWallPts)}" fill="#CBD5E1" fill-opacity="0.92" stroke="#64748B" stroke-width="1.1"/>
+        <polygon points="${polyStr(westWallPts)}" fill="#94A3B8" fill-opacity="0.92" stroke="#64748B" stroke-width="1.1"/>
+        <polygon points="${polyStr(northWallCap)}" fill="#F8FAFC" stroke="#475569" stroke-width="0.9"/>
+        <polygon points="${polyStr(westWallCap)}" fill="#E2E8F0" stroke="#475569" stroke-width="0.9"/>
         ${furnSvg}
         <!-- Front/Cutaway Walls (Translucent architectural cutaway) -->
-        <polygon points="${polyStr(eastWallPts)}" fill="#475569" fill-opacity="0.52" stroke="#94A3B8" stroke-width="1.2"/>
-        <polygon points="${polyStr(southWallPts)}" fill="#334155" fill-opacity="0.52" stroke="#94A3B8" stroke-width="1.2"/>
+        <polygon points="${polyStr(eastWallPts)}" fill="#64748B" fill-opacity="0.34" stroke="#94A3B8" stroke-width="1.1"/>
+        <polygon points="${polyStr(southWallPts)}" fill="#475569" fill-opacity="0.34" stroke="#94A3B8" stroke-width="1.1"/>
         <!-- Cutaway Wall Top Rim Highlight -->
-        <polygon points="${polyStr(topCapPts)}" fill="none" stroke="${r.isSemiOpen ? '#38BDF8' : '#F8FAFC'}" stroke-width="${r.isSemiOpen ? '1.6' : '2.6'}" ${r.isSemiOpen ? 'stroke-dasharray="5 3"' : ''}/>
+        <polygon points="${polyStr(topCapPts)}" fill="none" stroke="${r.isSemiOpen ? '#38BDF8' : '#F8FAFC'}" stroke-width="${r.isSemiOpen ? '1.8' : '2.8'}" ${r.isSemiOpen ? 'stroke-dasharray="5 3"' : ''}/>
         <!-- Room Label Badge -->
-        <rect x="${+(cx - 64).toFixed(1)}" y="${+(cy - 18).toFixed(1)}" width="128" height="34" rx="5" fill="#070E1A" fill-opacity="0.86" stroke="#DAA520" stroke-opacity="0.7" stroke-width="1"/>
+        <rect x="${+(cx - 66).toFixed(1)}" y="${+(cy - 18).toFixed(1)}" width="132" height="34" rx="5" fill="#070E1A" fill-opacity="0.88" stroke="#DAA520" stroke-opacity="0.85" stroke-width="1.1"/>
         <text x="${cx}" y="${+(cy - 4).toFixed(1)}" text-anchor="middle" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="10.5" font-weight="bold">${escXml(r.code)} · ${escXml(r.name.slice(0, 18))}</text>
         <text x="${cx}" y="${+(cy + 10).toFixed(1)}" text-anchor="middle" fill="#DAA520" font-family="monospace" font-size="9.5" font-weight="bold">${r.width}' × ${r.depth}' (${r.areaSqFt} sf)</text>
       </g>
     `;
   }
 
-  const [roadLabelX, roadLabelY] = isoPt(plot.widthFt / 2, plot.depthFt + 3.2, 0);
+  const [roadLabelX, roadLabelY] = isoPt(plot.widthFt / 2, plot.depthFt + 2.8, 0);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" width="${svgW}" height="${svgH}">
   <defs>
     <linearGradient id="bgGrad3D" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#060C17"/>
-      <stop offset="100%" stop-color="#0D182B"/>
+      <stop offset="0%" stop-color="#0B1528"/>
+      <stop offset="100%" stop-color="#16243D"/>
     </linearGradient>
   </defs>
 
   <rect width="${svgW}" height="${svgH}" fill="url(#bgGrad3D)"/>
-  <rect x="20" y="20" width="${svgW - 40}" height="${svgH - 40}" fill="none" stroke="#DAA520" stroke-opacity="0.5" stroke-width="2"/>
+  <rect x="20" y="20" width="${svgW - 40}" height="${svgH - 40}" fill="none" stroke="#DAA520" stroke-opacity="0.55" stroke-width="2"/>
 
   <!-- Header Banner -->
   <rect x="20" y="20" width="${svgW - 40}" height="74" fill="#0B1526" stroke="#DAA520" stroke-opacity="0.45" stroke-width="1"/>
@@ -948,9 +1097,9 @@ function render3DCutawaySvg(model) {
   <text x="44" y="76" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="20" font-weight="bold">3D ARCHITECTURAL CUTAWAY PREVIEW — ${plot.rawWidth} × ${plot.rawDepth} ${plot.displayUnit.toUpperCase()} (${program.bedrooms} BHK)</text>
 
   <!-- Plot Ground Plinth & Setback Apron -->
-  <polygon points="${polyStr(plotSlabPts)}" fill="#0F1B2D" stroke="#475569" stroke-width="2"/>
-  <polyline points="${polyStr([plotSlabPts[3], plotSlabBottomPts[0], plotSlabBottomPts[1], plotSlabPts[2]])}" fill="#09101D" stroke="#334155" stroke-width="1.5"/>
-  <polyline points="${polyStr([plotSlabPts[2], plotSlabBottomPts[1], plotSlabBottomPts[2], plotSlabPts[1]])}" fill="#0B1322" stroke="#334155" stroke-width="1.5"/>
+  <polygon points="${polyStr(plotSlabPts)}" fill="#1E293B" stroke="#64748B" stroke-width="2.2"/>
+  <polyline points="${polyStr([plotSlabPts[3], plotSlabBottomPts[0], plotSlabBottomPts[1], plotSlabPts[2]])}" fill="#0F172A" stroke="#475569" stroke-width="1.5"/>
+  <polyline points="${polyStr([plotSlabPts[2], plotSlabBottomPts[1], plotSlabBottomPts[2], plotSlabPts[1]])}" fill="#131E31" stroke="#475569" stroke-width="1.5"/>
 
   <!-- Buildable Envelope Footprint Outline -->
   <polygon points="${polyStr(envPts)}" fill="none" stroke="#22C55E" stroke-width="1.8" stroke-dasharray="6 4"/>
@@ -964,7 +1113,7 @@ function render3DCutawaySvg(model) {
   <!-- Bottom Verification Legend -->
   <rect x="36" y="925" width="${svgW - 72}" height="135" rx="8" fill="#0B1526" stroke="#DAA520" stroke-opacity="0.55" stroke-width="1.5"/>
   <text x="56" y="954" fill="#DAA520" font-family="Arial, sans-serif" font-size="12.5" font-weight="bold" letter-spacing="0.8">1:1 GEOMETRIC SYNCHRONIZATION WITH 2D FLOOR PLAN</text>
-  <text x="56" y="978" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="11.5">• Every room block, wall partition, and dimension in this 3D cutaway is extruded directly from the canonical 2D coordinates.</text>
+  <text x="56" y="978" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="11.5">• Every room block, wall partition, furniture volume, and dimension in this 3D cutaway is extruded directly from the canonical 2D coordinates.</text>
   <text x="56" y="1000" fill="#E2E8F0" font-family="Arial, sans-serif" font-size="11.5">• Plot Area: ${areas.plotAreaSqFt.toLocaleString()} sq.ft (${plot.widthFt}' × ${plot.depthFt}')  |  Buildable Envelope: ${areas.buildingEnvelopeSqFt.toLocaleString()} sq.ft (${envelope.widthFt}' × ${envelope.depthFt}')  |  Total Built-Up: ${areas.totalBuiltUpAreaSqFt.toLocaleString()} sq.ft</text>
   <text x="56" y="1022" fill="#94A3B8" font-family="Arial, sans-serif" font-size="11">• Setbacks: Front ${setbacks.frontFt}ft, Rear ${setbacks.rearFt}ft, Left ${setbacks.leftFt}ft, Right ${setbacks.rightFt}ft (${escXml(setbacks.source)}).</text>
   <text x="56" y="1044" fill="#64748B" font-family="Arial, sans-serif" font-size="10">Note: Isometric 3D cutaway preview image (SVG/PNG). Conceptual visualization only — not a licensed structural or municipal compliance submission.</text>

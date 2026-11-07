@@ -109,6 +109,14 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: null,
     },
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
+    isTestAccount: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

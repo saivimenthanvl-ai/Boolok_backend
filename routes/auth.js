@@ -260,7 +260,10 @@ if (!process.env.GOOGLE_CLIENT_ID) {
 
 const ALLOWED_GOOGLE_AUDIENCES = [
   process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_WEB_CLIENT_ID,
+  process.env.GOOGLE_ANDROID_CLIENT_ID,
   '166853460121-jdlugm3ncga9qu4vk3b45lda5onusup2.apps.googleusercontent.com',
+  '166853460121-oe0lekc9clo5o8ctim6fuookn0gvcpln.apps.googleusercontent.com',
   '166853460121-ue9d43578k6i5211b46bfsoefo81f6di.apps.googleusercontent.com',
 ].filter(Boolean);
 
