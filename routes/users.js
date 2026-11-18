@@ -719,17 +719,29 @@ async function ensureCommunityConnections() {
       memberDocs[m.username] = user;
     }
 
-    // 2. Establish realistic, verified mutual follower relationships if empty (Only among seed demo accounts, NEVER on real users)
+    // 2. Verified canonical edge map matching production reference photos
     const INITIAL_FOLLOW_MAP = {
-      shreekutti: ['logeshwarana', 'ajmal'],
-      logeshwarana: ['shreekutti', 'ajmal'],
-      ajmal: ['shreekutti', 'logeshwarana', 'vignesh'],
-      the_akshtr_estate: ['shreekutti', 'logeshwarana'],
-      prasanth_properties: ['ajmal', 'bavadharini_rs'],
-      bavadharini_rs: ['logeshwarana', 'ajmal'],
-      vignesh: ['shreekutti', 'logeshwarana'],
-      aswin: ['shreekutti', 'logeshwarana'],
-      yashwanth: ['shreekutti', 'logeshwarana'],
+      // Shreekutti has 1 follower: ajmal
+      shreekutti: ['ajmal'],
+      // waranlogesh0406 has 1 follower: mithulanr2003
+      waranlogesh0406: ['mithulanr2003'],
+      // pgma251 (G Dinesh) has 1 follower: waranlogesh0406
+      pgma251: ['waranlogesh0406'],
+      // ajmal has 2 followers: vignesh, shreekutti
+      ajmal: ['shreekutti', 'vignesh'],
+      // bavadharini_rs has 1 follower: ajmal
+      bavadharini_rs: ['ajmal'],
+      // the_akshtr_estate has 1 follower: ajmal
+      the_akshtr_estate: ['ajmal'],
+      // prasanth_properties has 2 followers: shreekutti, bavadharini_rs
+      prasanth_properties: ['shreekutti', 'bavadharini_rs'],
+      // aswin has 1 follower: shreekutti
+      aswin: ['shreekutti'],
+      // vignesh has 1 follower: shreekutti
+      vignesh: ['shreekutti'],
+      // yashwanth has 1 follower: shreekutti
+      yashwanth: ['shreekutti'],
+      // sophia, david, marcus (2 followers each)
       sophia_luxury: ['david_sterling', 'marcus_vance'],
       david_sterling: ['sophia_luxury', 'marcus_vance'],
       marcus_vance: ['sophia_luxury', 'david_sterling'],
