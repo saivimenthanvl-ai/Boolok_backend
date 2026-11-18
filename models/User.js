@@ -129,6 +129,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isDiscoverable: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
   },
   { timestamps: true }
 );

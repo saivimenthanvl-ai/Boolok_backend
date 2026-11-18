@@ -304,6 +304,7 @@ router.get('/search', async (req, res) => {
         { username: { $not: /^(qauser_|qamatrix_|qatest_|t\d{10,})/i } },
         { isArchived: { $ne: true } },
         { isTestAccount: { $ne: true } },
+        { isDiscoverable: { $ne: false } },
         { fullName: { $not: /^(Advisor|Brokers|Profile)$/i } },
         {
           $or: [
@@ -793,6 +794,7 @@ router.get('/suggested', optionalAuth, async (req, res) => {
       },
       isArchived: { $ne: true },
       isTestAccount: { $ne: true },
+      isDiscoverable: { $ne: false },
       fullName: { $not: /^(Advisor|Brokers|Profile)$/i },
     };
 
