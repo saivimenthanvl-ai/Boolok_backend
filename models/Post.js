@@ -92,10 +92,41 @@ const postSchema = new mongoose.Schema(
         },
       },
     ],
+
+    isFeaturedListing: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    showOnDashboard: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    isProperty: {
+      type: Boolean,
+      default: true,
+    },
+    showInProperties: {
+      type: Boolean,
+      default: true,
+    },
+    isArchived: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+postSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Post', postSchema);

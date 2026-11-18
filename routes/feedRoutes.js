@@ -13,6 +13,37 @@ const router = express.Router();
 const getAuthenticatedUserId = (req) =>
   req.user?.id || req.user?._id || req.userId || null;
 
+const CANONICAL_AVATAR_BY_ID_OR_USERNAME = {
+  '6afb2cf7355e1014f9452c0d': '/avatars/logeshwaran_doomsday.png',
+  'waranlogesh0406': '/avatars/logeshwaran_doomsday.png',
+  '6ace0e6586b4ca082d9f1432': '/avatars/logeshwaran_doomsday.png',
+  'logeshwarana': '/avatars/logeshwaran_doomsday.png',
+  '6addf49b5f3925f54f8491f6': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
+  'mithulanr2003': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
+  'mithulan_r': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
+  '6ae9bc64b549b88abf72eabf': '/avatars/sampath_baseball.jpg',
+  'waranalogesh0102': '/avatars/sampath_baseball.jpg',
+};
+
+const resolveCanonicalAvatar = (userLike) => {
+  if (!userLike || typeof userLike !== 'object') return null;
+  const uid = String(userLike._id || userLike.id || '').trim();
+  const uname = String(userLike.username || '').trim().toLowerCase();
+  if (uid === '6a7a0dbb51a42123f22c4edf' || uname === 'saivimenthanvl' || uname === 'saivimenthan') {
+    return null;
+  }
+  if (uid && CANONICAL_AVATAR_BY_ID_OR_USERNAME[uid]) {
+    return CANONICAL_AVATAR_BY_ID_OR_USERNAME[uid];
+  }
+  if (uname && CANONICAL_AVATAR_BY_ID_OR_USERNAME[uname]) {
+    return CANONICAL_AVATAR_BY_ID_OR_USERNAME[uname];
+  }
+  const raw = userLike.profilePicture || userLike.avatar || null;
+  if (!raw || typeof raw !== 'string') return null;
+  if (raw.includes('ACg8ocJ_TV7') || raw.includes('ACg8ocK0o5SZUMa')) return null;
+  return raw;
+};
+
 // Format a single post document into a clean, consistent response
 const formatPost = (post, viewerId = null) => {
   const p = post.toObject ? post.toObject() : post;
@@ -22,19 +53,22 @@ const formatPost = (post, viewerId = null) => {
   const comments = (p.comments || []).map((c) => {
     const userObj = c.user || {};
     const createdDate = c.createdAt || new Date();
+    const avatar = resolveCanonicalAvatar(userObj);
     return {
       _id: c._id,
       author: {
         _id: userObj._id || userObj.id || null,
         fullName: userObj.fullName || 'Boolok Member',
         username: userObj.username || 'member',
-        profilePicture: userObj.profilePicture || null,
+        profilePicture: avatar,
+        avatar: avatar,
       },
       user: {
         _id: userObj._id || userObj.id || null,
         fullName: userObj.fullName || 'Boolok Member',
         username: userObj.username || 'member',
-        profilePicture: userObj.profilePicture || null,
+        profilePicture: avatar,
+        avatar: avatar,
       },
       text: c.text,
       createdAt: createdDate,
@@ -51,6 +85,8 @@ const formatPost = (post, viewerId = null) => {
     }
   }
 
+  const authorAvatar = p.author ? resolveCanonicalAvatar(p.author) : null;
+
   return {
     _id: p._id.toString(),
     content: (p.content || '').trim() || (resolvedMedia ? 'Exclusive Real Estate Showcase' : ''),
@@ -60,7 +96,8 @@ const formatPost = (post, viewerId = null) => {
           _id: p.author._id?.toString() || p.author.id?.toString(),
           fullName: p.author.fullName || 'Boolok Member',
           username: p.author.username || 'member',
-          profilePicture: p.author.profilePicture || null,
+          profilePicture: authorAvatar,
+          avatar: authorAvatar,
           headline: p.author.headline || 'Real Estate Professional & Boolok Member',
           location: p.author.location || 'Global Real Estate Network',
         }
@@ -76,6 +113,10 @@ const formatPost = (post, viewerId = null) => {
       : '0 likes',
     comments,
     commentsCount: comments.length,
+    isProperty: p.isProperty !== false,
+    showInProperties: p.showInProperties !== false,
+    isFeaturedListing: p.isFeaturedListing !== false,
+    showOnDashboard: p.showOnDashboard !== false,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   };
@@ -88,13 +129,13 @@ const FALLBACK_COMMUNITY_POSTS = [
     content: 'Fully leased Grade-A Tech Park development with pre-verified institutional efficiency ratings. 8.4% Cap Rate · 92,000 sq ft · Outer Ring Road, Bangalore.',
     mediaUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200',
     author: { _id: 'shreekutti', fullName: 'Shreekutti', username: 'shreekutti', profilePicture: null, headline: 'Tech Park Campus Acquisitions Lead @ Boolok', location: 'Bangalore, Karnataka' },
-    likes: ['logeshwarana', 'ajmal', 'sai'],
+    likes: ['waranlogesh0406', 'ajmal', 'sai'],
     likesCount: 3,
     isLiked: false,
     currentUserReaction: null,
     likesSummary: 'Liked by 3 members',
     comments: [
-      { _id: 'sc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null }, text: '8.4% cap rate on Outer Ring Road is top quartile! 🏢🚀', time: '04:15 pm', createdAt: new Date('2026-09-10T10:45:00.000Z') },
+      { _id: 'sc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: '8.4% cap rate on Outer Ring Road is top quartile! 🏢🚀', time: '04:15 pm', createdAt: new Date('2026-09-10T10:45:00.000Z') },
       { _id: 'sc-2', author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Strong institutional covenants on this campus.', time: '05:30 pm', createdAt: new Date('2026-09-10T12:00:00.000Z') },
     ],
     commentsCount: 2,
@@ -106,49 +147,31 @@ const FALLBACK_COMMUNITY_POSTS = [
     content: 'Direct beach access, smart home automation, infinity pool overlooking Dubai Marina. Palm Jumeirah Signature Mansion — 7 Beds · Private Beach · $24,000,000.',
     mediaUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200',
     author: { _id: 'ajmal', fullName: 'Mohammed Ajmal', username: 'ajmal', profilePicture: null, headline: 'Luxury Living & High-End Residential Broker', location: 'Palm Jumeirah, Dubai' },
-    likes: ['sai', 'logeshwarana', 'shreekutti', 'the_akshtr_estate'],
+    likes: ['sai', 'waranlogesh0406', 'shreekutti', 'the_akshtr_estate'],
     likesCount: 4,
     isLiked: false,
     currentUserReaction: null,
     likesSummary: 'Liked by 4 members',
     comments: [
       { _id: 'ac-1', author: { fullName: 'Shreekutti', username: 'shreekutti' }, text: 'Unrivaled private beach frontage!', time: '10:00 am', createdAt: new Date('2026-09-09T04:30:00.000Z') },
-      { _id: 'ac-2', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null }, text: 'Bespoke marble and high ceiling elevation.', time: '11:15 am', createdAt: new Date('2026-09-09T05:45:00.000Z') },
+      { _id: 'ac-2', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: 'Bespoke marble and high ceiling elevation.', time: '11:15 am', createdAt: new Date('2026-09-09T05:45:00.000Z') },
     ],
     commentsCount: 2,
     createdAt: new Date('2026-09-09T04:00:00.000Z'),
     updatedAt: new Date('2026-09-09T04:00:00.000Z'),
   },
   {
-    _id: 'logesh-p-1',
-    content: 'World-class vineyard estate with high soil suitability index and pre-approved zoning. Margaret River Commercial Vineyard — 140 Acres · Pre-Verified Water Rights · $18,500,000.',
-    mediaUrl: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200',
-    author: { _id: 'logeshwarana', fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null, headline: 'Architectural Consultant & Real Estate Lead', location: 'Western Australia' },
-    likes: ['sai', 'shreekutti', 'bavadharini_rs'],
-    likesCount: 3,
-    isLiked: false,
-    currentUserReaction: null,
-    likesSummary: 'Liked by 3 members',
-    comments: [
-      { _id: 'lc-1', author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Soil analysis and water rights are pristine.', time: '02:00 pm', createdAt: new Date('2026-09-08T08:30:00.000Z') },
-      { _id: 'lc-2', author: { fullName: 'Bavadharini RS', username: 'bavadharini_rs' }, text: 'Architectural layout is stunning.', time: '03:10 pm', createdAt: new Date('2026-09-08T09:40:00.000Z') },
-    ],
-    commentsCount: 2,
-    createdAt: new Date('2026-09-08T08:00:00.000Z'),
-    updatedAt: new Date('2026-09-08T08:00:00.000Z'),
-  },
-  {
     _id: 'akshat-p-1',
     content: 'Modern commercial tower with multi-level parking, 100% power backup, and prime expressway frontage. Institutional Grade-A Office Hub — 120,000 sq ft · 8.9% Yield · OMR IT Corridor · ₹292.3 Cr.',
     mediaUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
     author: { _id: 'the_akshtr_estate', fullName: 'Akshat Commercials', username: 'the_akshtr_estate', profilePicture: null, headline: 'Commercial Property & Tech Park Portfolio Lead @ Boolok Network', location: 'OMR IT Corridor, Chennai' },
-    likes: ['sai', 'shreekutti', 'logeshwarana'],
+    likes: ['sai', 'shreekutti', 'waranlogesh0406'],
     likesCount: 3,
     isLiked: false,
     currentUserReaction: null,
     likesSummary: 'Liked by 3 members',
     comments: [
-      { _id: 'akc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null }, text: 'Triple net lease with institutional covenants is top tier!', time: '06:00 pm', createdAt: new Date('2026-09-07T12:30:00.000Z') },
+      { _id: 'akc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: 'Triple net lease with institutional covenants is top tier!', time: '06:00 pm', createdAt: new Date('2026-09-07T12:30:00.000Z') },
     ],
     commentsCount: 1,
     createdAt: new Date('2026-09-07T12:00:00.000Z'),
@@ -176,7 +199,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     content: 'Double-height glass living room, customized Italian joinery, panoramic sea view balcony. High-Ceiling Ultra Penthouse — 5,800 sq ft · Private Elevator · Poes Garden, Chennai · ₹51.8 Cr.',
     mediaUrl: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200',
     author: { _id: 'bavadharini_rs', fullName: 'Bavadharini RS', username: 'bavadharini_rs', profilePicture: null, headline: 'Interior Designer & Modern Living Specialist', location: 'Chennai, Tamil Nadu' },
-    likes: ['sai', 'ajmal', 'logeshwarana'],
+    likes: ['sai', 'ajmal', 'waranlogesh0406'],
     likesCount: 3,
     isLiked: false,
     currentUserReaction: null,
@@ -193,7 +216,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     content: 'New architectural masterpiece in Beverly Hills. 8 Bedrooms, 11 Baths, custom Italian marble, and zero-edge cascading pool. 🏆✨ Beverly Hills Modern Architectural Masterpiece — $12.5M.',
     mediaUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
     author: { _id: 'vignesh', fullName: 'Vigneshwaran', username: 'vignesh', profilePicture: null, headline: 'Prime Architectural Estates & Beverly Hills Luxury Specialist', location: 'Beverly Hills, California' },
-    likes: ['sai', 'logeshwarana', 'shreekutti'],
+    likes: ['sai', 'waranlogesh0406', 'shreekutti'],
     likesCount: 3,
     isLiked: false,
     currentUserReaction: null,
@@ -210,13 +233,13 @@ const FALLBACK_COMMUNITY_POSTS = [
     content: 'Grade-A institutional office headquarters with 100% occupancy and blue-chip covenants. Coventry Corporate Headquarters — 52,000 sq ft · 8.2% Cap Rate · $16,500,000.',
     mediaUrl: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200',
     author: { _id: 'saivimenthanvl', fullName: 'Sai Vimenthan', username: 'saivimenthanvl', profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocK0o5SZUMa-JTOuTUTxS6t1Bl20HPwVkbFAz98dCG6e1rbpGA=s96-c', headline: 'Elite Real Estate Broker & Commercial Portfolio Lead', location: 'Chennai, Tamil Nadu' },
-    likes: ['logeshwarana', 'shreekutti'],
+    likes: ['waranlogesh0406', 'shreekutti'],
     likesCount: 2,
     isLiked: false,
     currentUserReaction: null,
     likesSummary: 'Liked by 2 members',
     comments: [
-      { _id: 'spc-1', author: { fullName: 'Logeshwaran A', username: 'logeshwarana', profilePicture: null }, text: 'Prime UK corporate covenants. Solid institutional deal!', time: '04:00 pm', createdAt: new Date('2026-09-03T10:30:00.000Z') },
+      { _id: 'spc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: 'Prime UK corporate covenants. Solid institutional deal!', time: '04:00 pm', createdAt: new Date('2026-09-03T10:30:00.000Z') },
     ],
     commentsCount: 1,
     createdAt: new Date('2026-09-03T10:00:00.000Z'),
@@ -233,14 +256,29 @@ FALLBACK_COMMUNITY_POSTS.forEach((p) => {
   p.likesSummary = '0 likes';
 });
 
-// ── GET /api/feed : Fetch all posts ──────────────────────────────────────────
+// ── GET /api/feed : Fetch posts (supports ?limit=&skip=) ────────────────────
 router.get('/', optionalAuth, async (req, res) => {
   try {
     const viewerId = getAuthenticatedUserId(req);
-    const dbPosts = await Post.find({})
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
+    const skip = Math.max(parseInt(req.query.skip, 10) || 0, 0);
+
+    let postQuery = Post.find({
+      isArchived: { $ne: true },
+      isDeleted: { $ne: true },
+    })
       .populate('author', 'fullName username profilePicture headline location email')
       .populate('comments.user', 'fullName username profilePicture')
       .sort({ createdAt: -1 });
+
+    if (typeof postQuery.skip === 'function') {
+      postQuery = postQuery.skip(skip);
+    }
+    if (typeof postQuery.limit === 'function') {
+      postQuery = postQuery.limit(limit);
+    }
+
+    const dbPosts = await postQuery;
 
     let formatted = dbPosts
       .filter((p) => {

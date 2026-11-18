@@ -33,7 +33,10 @@ router.get('/conversations', authMiddleware, async (req, res) => {
     const viewerId = getAuthenticatedUserId(req);
     if (!viewerId) return res.status(401).json({ message: 'Unauthorized.' });
 
-    const conversations = await Conversation.find({ participants: viewerId })
+    const conversations = await Conversation.find({
+      participants: viewerId,
+      hiddenFor: { $ne: viewerId },
+    })
       .populate('participants', 'fullName username profilePicture headline location')
       .populate('lastMessage.sender', 'fullName username')
       .sort({ updatedAt: -1 });
@@ -297,6 +300,37 @@ router.put('/read/:conversationId', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('MARK AS READ ERROR:', error);
     return res.status(500).json({ message: 'Failed to mark messages as read.', error: error.message });
+  }
+});
+
+// ── PUT /api/messages/hide/:conversationId (Hide conversation for authenticated viewer) ──
+router.put('/hide/:conversationId', authMiddleware, async (req, res) => {
+  try {
+    const viewerId = getAuthenticatedUserId(req);
+    const { conversationId } = req.params;
+
+    if (!viewerId) return res.status(401).json({ message: 'Unauthorized.' });
+    if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+      return res.status(400).json({ message: 'Invalid conversation ID.' });
+    }
+
+    const conversation = await Conversation.findOne({
+      _id: conversationId,
+      participants: viewerId,
+    });
+
+    if (!conversation) {
+      return res.status(404).json({ message: 'Conversation not found or access denied.' });
+    }
+
+    await Conversation.findByIdAndUpdate(conversationId, {
+      $addToSet: { hiddenFor: viewerId },
+    });
+
+    return res.status(200).json({ success: true, message: 'Conversation hidden for user.' });
+  } catch (error) {
+    console.error('HIDE CONVERSATION ERROR:', error);
+    return res.status(500).json({ message: 'Failed to hide conversation.', error: error.message });
   }
 });
 

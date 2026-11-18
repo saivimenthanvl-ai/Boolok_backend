@@ -99,6 +99,28 @@ const CONFIRMED_STATIC_REEL_VIDEOS = {
   'kyoto.mp4': 'https://boolokgpt.vercel.app/videos/kyoto.mp4',
   'uluwatu_cliffside.mp4': 'https://boolokgpt.vercel.app/videos/uluwatu_cliffside.mp4',
   'Uluwatu Cliffside.mp4': 'https://boolokgpt.vercel.app/videos/uluwatu_cliffside.mp4',
+  'dinesh_property.mp4': 'https://boolokgpt.vercel.app/videos/dinesh_property.mp4',
+  'loki.mp4': 'https://boolokgpt.vercel.app/videos/loki.mp4',
+  'alwarpet.mp4': 'https://boolokgpt.vercel.app/videos/alwarpet.mp4',
+  'anna_nagar.mp4': 'https://boolokgpt.vercel.app/videos/anna_nagar.mp4',
+  'mambakkam.mp4': 'https://boolokgpt.vercel.app/videos/mambakkam.mp4',
+  'nanganallur.mp4': 'https://boolokgpt.vercel.app/videos/nanganallur.mp4',
+  'pudupakkam.mp4': 'https://boolokgpt.vercel.app/videos/pudupakkam.mp4',
+  'royapettah.mp4': 'https://boolokgpt.vercel.app/videos/royapettah.mp4',
+  'saidapet.mp4': 'https://boolokgpt.vercel.app/videos/saidapet.mp4',
+  'thirumanviyur.mp4': 'https://boolokgpt.vercel.app/videos/thirumanviyur.mp4',
+  'thirumanviyur2.mp4': 'https://boolokgpt.vercel.app/videos/thirumanviyur2.mp4',
+  'mithulan_property_1.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_1.mp4',
+  'mithulan_property_2.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_2.mp4',
+  'mithulan_property_3.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_3.mp4',
+  'mithulan_property_4.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_4.mp4',
+  'mithulan_property_5.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_5.mp4',
+  'mithulan_property_6.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_6.mp4',
+  'mithulan_property_7.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_7.mp4',
+  'mithulan_property_8.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_8.mp4',
+  'mithulan_property_9.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_9.mp4',
+  'mithulan_property_10.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_10.mp4',
+  'mithulan_property_11.mp4': 'https://boolokgpt.vercel.app/videos/mithulan_property_11.mp4',
 };
 
 const resolveDurableVideoUrl = (rawUrl) => {
@@ -110,6 +132,18 @@ const resolveDurableVideoUrl = (rawUrl) => {
     return CONFIRMED_STATIC_REEL_VIDEOS[m[1]];
   }
   return clean;
+};
+
+const CANONICAL_AVATAR_BY_ID_OR_USERNAME = {
+  '6afb2cf7355e1014f9452c0d': '/avatars/logeshwaran_doomsday.png',
+  'waranlogesh0406': '/avatars/logeshwaran_doomsday.png',
+  '6ace0e6586b4ca082d9f1432': '/avatars/logeshwaran_doomsday.png',
+  'logeshwarana': '/avatars/logeshwaran_doomsday.png',
+  '6addf49b5f3925f54f8491f6': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
+  'mithulanr2003': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
+  'mithulan_r': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
+  '6ae9bc64b549b88abf72eabf': '/avatars/sampath_baseball.jpg',
+  'waranalogesh0102': '/avatars/sampath_baseball.jpg',
 };
 
 const sanitizeAvatarUrl = (url, userObj = null) => {
@@ -126,24 +160,35 @@ const sanitizeAvatarUrl = (url, userObj = null) => {
     ) {
       return null;
     }
+    if (uid && CANONICAL_AVATAR_BY_ID_OR_USERNAME[uid]) {
+      return CANONICAL_AVATAR_BY_ID_OR_USERNAME[uid];
+    }
+    if (uname && CANONICAL_AVATAR_BY_ID_OR_USERNAME[uname]) {
+      return CANONICAL_AVATAR_BY_ID_OR_USERNAME[uname];
+    }
   }
-  if (!url || typeof url !== 'string') return null;
+  const raw = url || (userObj && typeof userObj === 'object' ? userObj.avatar : null);
+  if (!raw || typeof raw !== 'string') return null;
   // Filter out known solid dark-brown Google placeholder image
   if (
-    url.includes('ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r') ||
-    url.includes('ACg8ocK0o5SZUMa-JTOuTUTxS6t1Bl20HPwVkbFAz98dCG6e1rbpGA')
+    raw.includes('ACg8ocJ_TV7-lpSTfRAQI0wc76yPHoIWaWg_5lgW-i9RxbiPx4tlFk0r') ||
+    raw.includes('ACg8ocK0o5SZUMa-JTOuTUTxS6t1Bl20HPwVkbFAz98dCG6e1rbpGA')
   ) {
     return null;
   }
-  return url;
+  return raw;
 };
 
-const mapUser = (u) => ({
-  _id: u?._id || u?.id || null,
-  fullName: u?.fullName || 'Boolok Member',
-  username: u?.username || 'member',
-  profilePicture: sanitizeAvatarUrl(u?.profilePicture, u),
-});
+const mapUser = (u) => {
+  const av = sanitizeAvatarUrl(u?.profilePicture || u?.avatar, u);
+  return {
+    _id: u?._id || u?.id || null,
+    fullName: u?.fullName || 'Boolok Member',
+    username: u?.username || 'member',
+    profilePicture: av,
+    avatar: av,
+  };
+};
 
 const mapComment = (c) => {
   const createdDate = c.createdAt || new Date();
@@ -175,13 +220,15 @@ const formatReel = (reel, viewerId = null) => {
         fullName: authorDisplayName,
         username: r.author.username || 'member',
         profilePicture: sanitizeAvatarUrl(r.author.profilePicture, r.author),
+        avatar: sanitizeAvatarUrl(r.author.profilePicture, r.author),
       }
     : {
         // author not populated (plain ObjectId) or user deleted
         _id: r.author ? r.author.toString() : null,
         fullName: authorDisplayName,
         username: 'member',
-        profilePicture: null,
+        profilePicture: sanitizeAvatarUrl(r.authorAvatar, null),
+        avatar: sanitizeAvatarUrl(r.authorAvatar, null),
       };
 
   const titleStr = r.title || '';
@@ -318,6 +365,10 @@ router.get('/', optionalAuth, async (req, res) => {
 
     if (req.query.author && mongoose.Types.ObjectId.isValid(req.query.author)) {
       query.author = new mongoose.Types.ObjectId(req.query.author);
+    }
+
+    if (req.query.section === 'insights' || req.query.category === 'insights') {
+      query.showInInsights = { $ne: false };
     }
 
     const reels = await Reel.find(query)

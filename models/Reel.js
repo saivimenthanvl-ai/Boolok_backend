@@ -39,6 +39,8 @@ const reelSchema = new mongoose.Schema(
     views: { type: Number, default: 0, min: 0 },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     comments: [commentSchema],
+    isArchived: { type: Boolean, default: false, index: true },
+    isDeleted: { type: Boolean, default: false, index: true },
   },
   { timestamps: true }
 );

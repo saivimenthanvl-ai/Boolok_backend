@@ -7,6 +7,20 @@ const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Otp = require('../models/Otp');
 const authMiddleware = require('../middleware/auth');
+const { createRateLimiter } = require('../middleware/rateLimiter');
+
+// Rate limiters for auth and OTP endpoints
+const authLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 15,
+  message: 'Too many authentication attempts. Please wait a moment before trying again.',
+});
+
+const otpLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 5,
+  message: 'Too many OTP requests. Please wait a minute before requesting another code.',
+});
 
 const router = express.Router();
 
@@ -15,47 +29,94 @@ const nodemailer = require('nodemailer');
 // In-memory OTP storage with timestamp expiry (5 minutes)
 const otpStore = new Map();
 
+// Secret for HMAC hashing OTP codes before database storage
+const OTP_PEPPER = process.env.JWT_SECRET || 'boolok_otp_secure_pepper_2026';
+
+function hashOtp(target, code) {
+  const normTarget = String(target || '').trim().toLowerCase();
+  const normCode = String(code || '').trim();
+  return crypto.createHmac('sha256', OTP_PEPPER).update(`${normTarget}:${normCode}`).digest('hex');
+}
+
 function generateOtp() {
   return crypto.randomInt(0, 1000000).toString().padStart(6, '0');
 }
 
 async function storeOtp(target, otp, type = 'register') {
   const norm = String(target).trim().toLowerCase();
+  const rawCode = String(otp).trim();
+  const hashedCode = hashOtp(norm, rawCode);
+  const now = new Date();
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+  // In-memory cache for fast local access
   otpStore.set(norm, {
-    otp: String(otp).trim(),
-    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+    hashedOtp: hashedCode,
+    expiresAt: expiresAt.getTime(),
+    type,
   });
 
   try {
     await Otp.deleteMany({ target: norm });
-    await Otp.create({ target: norm, otp: String(otp).trim(), type });
+    await Otp.create({
+      target: norm,
+      otp: hashedCode,
+      type,
+      createdAt: now,
+      expiresAt,
+    });
   } catch (err) {
     console.warn('[otp] MongoDB Otp storage fallback to memory:', err.message);
   }
 }
 
-async function verifyOtpHelper(target, inputOtp) {
+async function verifyOtpHelper(target, inputOtp, consume = true) {
   const norm = String(target).trim().toLowerCase();
-  const code = String(inputOtp).trim();
+  const rawCode = String(inputOtp).trim();
+  const hashedCode = hashOtp(norm, rawCode);
+  const now = new Date();
 
-  // 1. Check memory store
-  const entry = otpStore.get(norm);
-  if (entry && Date.now() <= entry.expiresAt && entry.otp === code) {
-    otpStore.delete(norm);
-    try { await Otp.deleteMany({ target: norm }); } catch (_) {}
-    return true;
-  }
-
-  // 2. Check MongoDB collection
+  // Primary source of truth: MongoDB with atomic expiry check & deletion
   try {
-    const dbEntry = await Otp.findOne({ target: norm, otp: code });
-    if (dbEntry) {
-      await Otp.deleteMany({ target: norm });
-      otpStore.delete(norm);
-      return true;
+    if (consume) {
+      const deletedDoc = await Otp.findOneAndDelete({
+        target: norm,
+        $or: [{ otp: hashedCode }, { otp: rawCode }],
+        $and: [
+          { $or: [{ expiresAt: { $gt: now } }, { expiresAt: { $exists: false } }] },
+        ],
+      });
+      if (deletedDoc) {
+        otpStore.delete(norm);
+        return true;
+      }
+    } else {
+      const doc = await Otp.findOneAndUpdate(
+        {
+          target: norm,
+          $or: [{ otp: hashedCode }, { otp: rawCode }],
+          $and: [
+            { $or: [{ expiresAt: { $gt: now } }, { expiresAt: { $exists: false } }] },
+          ],
+        },
+        { $set: { verifiedAt: now } },
+        { returnDocument: 'after' }
+      );
+      if (doc) {
+        return true;
+      }
     }
   } catch (err) {
-    console.warn('[otp] MongoDB Otp verification fallback:', err.message);
+    console.warn('[otp] MongoDB Otp verification error, falling back to memory:', err.message);
+  }
+
+  // Memory fallback if DB is temporarily unreachable
+  const entry = otpStore.get(norm);
+  if (entry && Date.now() <= entry.expiresAt && (entry.hashedOtp === hashedCode || entry.otp === rawCode)) {
+    if (consume) {
+      otpStore.delete(norm);
+    }
+    return true;
   }
 
   return false;
@@ -315,7 +376,7 @@ function sanitizeUser(user) {
 }
 
 // POST /api/auth/send-otp (for user email registration verification)
-router.post('/send-otp', async (req, res) => {
+router.post('/send-otp', otpLimiter, async (req, res) => {
   try {
     const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
 
@@ -370,7 +431,7 @@ router.post('/verify-email-otp', async (req, res) => {
 });
 
 // POST /api/auth/send-phone-otp (for mobile number verification)
-router.post('/send-phone-otp', async (req, res) => {
+router.post('/send-phone-otp', otpLimiter, async (req, res) => {
   try {
     const rawPhone = req.body.phone || req.body.phoneNumber || '';
     const phone = typeof rawPhone === 'string' ? rawPhone.trim() : '';
@@ -426,7 +487,7 @@ router.post('/verify-phone-otp', async (req, res) => {
 });
 
 // POST /api/auth/send-login-otp (for passwordless OTP login)
-router.post('/send-login-otp', async (req, res) => {
+router.post('/send-login-otp', otpLimiter, async (req, res) => {
   try {
     const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
 
@@ -575,7 +636,7 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/auth/login (supports email OR username)
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const rawIdentifier = req.body.username || req.body.email || req.body.identifier || '';
     const identifier = typeof rawIdentifier === 'string' ? rawIdentifier.trim().toLowerCase() : '';
@@ -620,7 +681,7 @@ router.post('/login', async (req, res) => {
 });
 
 // POST /api/auth/forgot-password
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', otpLimiter, async (req, res) => {
   try {
     const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
     if (!email) {
@@ -662,20 +723,10 @@ router.post('/verify-reset-otp', async (req, res) => {
       return res.status(400).json({ message: 'Email and verification code are required.' });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-    const entry = otpStore.get(normalizedEmail);
-
-    if (!entry) {
-      return res.status(400).json({ message: 'No reset request found for this email, or the code expired.' });
-    }
-
-    if (Date.now() > entry.expiresAt) {
-      otpStore.delete(normalizedEmail);
-      return res.status(400).json({ message: 'Verification code has expired. Please request a new one.' });
-    }
-
-    if (entry.otp !== otp) {
-      return res.status(400).json({ message: 'Incorrect 6-digit code. Please check and try again.' });
+    // Verify using shared DB without consuming yet (consume=false, marks verifiedAt)
+    const isValid = await verifyOtpHelper(email, otp, false);
+    if (!isValid) {
+      return res.status(400).json({ message: 'Invalid or expired verification code. Please check and try again.' });
     }
 
     return res.status(200).json({

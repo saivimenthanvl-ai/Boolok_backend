@@ -82,7 +82,7 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Range', 'Accept', 'Origin', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Range', 'Accept', 'Origin', 'X-Requested-With', 'x-openai-key'],
     exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length', 'Content-Type'],
   })
 );
@@ -138,16 +138,25 @@ app.use(
   })
 );
 
+// Serve root-level assets (e.g. /coventry_corporate.jpg)
+app.use(
+  express.static(path.join(__dirname, 'uploads'), {
+    setHeaders(res) {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Accept-Ranges', 'bytes');
+    },
+  })
+);
+
 /*
  * Health route
  */
 app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    database:
-      mongoose.connection.readyState === 1
-        ? 'connected'
-        : 'disconnected',
+  const isConnected = mongoose.connection.readyState === 1;
+  res.status(isConnected ? 200 : 503).json({
+    status: isConnected ? 'ok' : 'warming_up',
+    database: isConnected ? 'connected' : 'disconnected',
     time: new Date().toISOString(),
   });
 });
@@ -156,9 +165,11 @@ app.get('/api/health', (req, res) => {
  * Base route
  */
 app.get('/', (req, res) => {
-  res.status(200).json({
+  const isConnected = mongoose.connection.readyState === 1;
+  res.status(isConnected ? 200 : 503).json({
     name: 'BOOLOK GPT API',
-    status: 'running',
+    status: isConnected ? 'running' : 'warming_up',
+    database: isConnected ? 'connected' : 'disconnected',
   });
 });
 
@@ -399,7 +410,7 @@ async function startServer() {
 
     // 1. Immediately bind to port so Render and cloud hosts detect the service as live
     httpServer = server.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running with WebSockets on http://0.0.0.0:${PORT}`);
+      console.log(`Server running with WebSockets on http://localhost:${PORT} (bound to 0.0.0.0:${PORT})`);
     });
 
     // 2. Connect to MongoDB
