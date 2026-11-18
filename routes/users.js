@@ -40,6 +40,7 @@ const getAuthenticatedUserId = (req) => req.user?.id || req.user?._id || req.use
 // Note: These records are preserved in MongoDB (no deletion/merging/renaming),
 // but excluded from Suggested for You, user search, and relationship counts/modals.
 const EXCLUDED_DISCOVERY_IDS = new Set([
+  '6ace0e6586b4ca082d9f1432', // @logeshwarana (legacy uncanonical record)
   '6aef086a31b846c03b5ac537', // @resolveorseeduser
   '6aed46c6c434745e57daa204', // @brokers (Brokers)
   '6ae9bd78b549b88abf72eac0', // @mithulan_r_archived (Mithulan R archived duplicate)
