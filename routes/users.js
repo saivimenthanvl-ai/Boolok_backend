@@ -384,24 +384,12 @@ const COMMUNITY_MEMBERS = [
   },
   {
     username: 'waranlogesh0406',
-    aliases: ['waranlogesh0406', 'logeshwaran_ashok'],
+    aliases: ['waranlogesh0406', 'logeshwaran_ashok', 'logeshwarana'],
     fullName: 'Logeshwaran A',
     email: 'waranlogesh0406.member@boolok.ai',
     headline: 'Real Estate Professional & Boolok Member',
     location: 'Western Australia · Vineyard Estates',
     bio: 'Real estate professional and advisor on the Boolok AI network.',
-    closedDeals: '3',
-    profilePicture: '/avatars/logeshwaran_dark_circle.svg',
-    coverImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200',
-  },
-  {
-    username: 'logeshwarana',
-    aliases: ['logeshwaran_ashok_old'],
-    fullName: 'Logeshwaran A',
-    email: 'waranlogesh0406@gmail.com',
-    headline: 'Architectural Consultant & Real Estate Lead',
-    location: 'Western Australia',
-    bio: 'Focused on precision cap-rate calculations, commercial yield optimization, and real estate investment portfolios.',
     closedDeals: '3',
     profilePicture: '/avatars/logeshwaran_dark_circle.svg',
     coverImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200',
@@ -846,6 +834,8 @@ router.get('/suggested', optionalAuth, async (req, res) => {
       });
     }
 
+    // Verified ranking policy for Suggested for You matching the reference sequence
+    // Prioritizes established brokers and active portfolio advisors
     const ORDERED_SUGGESTED_USERNAMES = [
       'shreekutti',
       'waranlogesh0406',
@@ -863,6 +853,7 @@ router.get('/suggested', optionalAuth, async (req, res) => {
       'sam',
       'subasree',
       'mithulanr2003',
+      'pgma251',
     ];
 
     suggested.sort((a, b) => {
