@@ -148,6 +148,12 @@ const CANONICAL_AVATAR_BY_ID_OR_USERNAME = {
 
 const sanitizeAvatarUrl = (url, userObj = null) => {
   if (userObj && typeof userObj === 'object') {
+    const rawUserPhoto = userObj.profilePicture || userObj.avatar;
+    if (rawUserPhoto && typeof rawUserPhoto === 'string' && !rawUserPhoto.startsWith('blob:') && !rawUserPhoto.startsWith('file:')) {
+      if (!rawUserPhoto.includes('ACg8ocJ_TV7') && !rawUserPhoto.includes('ACg8ocK0o5SZUMa')) {
+        return rawUserPhoto.trim();
+      }
+    }
     const uid = String(userObj._id || userObj.id || '').toLowerCase().trim();
     const uname = String(userObj.username || '').toLowerCase().trim();
     const fname = String(userObj.fullName || '').toLowerCase().trim();
@@ -158,7 +164,7 @@ const sanitizeAvatarUrl = (url, userObj = null) => {
       uname === 'saivimenthan' ||
       fname.includes('sai vimenthan')
     ) {
-      return null;
+      return '/avatars/sai_orange_google.png';
     }
     if (uid && CANONICAL_AVATAR_BY_ID_OR_USERNAME[uid]) {
       return CANONICAL_AVATAR_BY_ID_OR_USERNAME[uid];

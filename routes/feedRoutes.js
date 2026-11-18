@@ -29,8 +29,23 @@ const resolveCanonicalAvatar = (userLike) => {
   if (!userLike || typeof userLike !== 'object') return null;
   const uid = String(userLike._id || userLike.id || '').trim();
   const uname = String(userLike.username || '').trim().toLowerCase();
+
+  const raw = userLike.profilePicture || userLike.avatar || null;
+  if (raw && typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (
+      trimmed &&
+      !trimmed.includes('ACg8ocJ_TV7') &&
+      !trimmed.includes('ACg8ocK0o5SZUMa') &&
+      !trimmed.startsWith('blob:') &&
+      !trimmed.startsWith('file:')
+    ) {
+      return trimmed;
+    }
+  }
+
   if (uid === '6a7a0dbb51a42123f22c4edf' || uname === 'saivimenthanvl' || uname === 'saivimenthan') {
-    return null;
+    return '/avatars/sai_orange_google.png';
   }
   if (uid && CANONICAL_AVATAR_BY_ID_OR_USERNAME[uid]) {
     return CANONICAL_AVATAR_BY_ID_OR_USERNAME[uid];
@@ -38,10 +53,7 @@ const resolveCanonicalAvatar = (userLike) => {
   if (uname && CANONICAL_AVATAR_BY_ID_OR_USERNAME[uname]) {
     return CANONICAL_AVATAR_BY_ID_OR_USERNAME[uname];
   }
-  const raw = userLike.profilePicture || userLike.avatar || null;
-  if (!raw || typeof raw !== 'string') return null;
-  if (raw.includes('ACg8ocJ_TV7') || raw.includes('ACg8ocK0o5SZUMa')) return null;
-  return raw;
+  return null;
 };
 
 // Format a single post document into a clean, consistent response

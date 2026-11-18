@@ -861,6 +861,7 @@ router.post('/google', async (req, res) => {
         authProvider: 'google',
         googleSubject,
         profilePicture,
+        avatar: profilePicture,
         isEmailVerified: isEmailVerified,
       });
     } else {
@@ -868,8 +869,9 @@ router.post('/google', async (req, res) => {
       if (googleSubject && !user.googleSubject) {
         user.googleSubject = googleSubject;
       }
-      if (profilePicture && !user.profilePicture) {
+      if (profilePicture) {
         user.profilePicture = profilePicture;
+        user.avatar = profilePicture;
       }
       if (isEmailVerified && !user.isEmailVerified) {
         user.isEmailVerified = true;
