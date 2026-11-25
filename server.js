@@ -116,6 +116,7 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/blueprint', require('./routes/blueprint'));
+app.use('/api/blueprint-history', require('./routes/blueprintHistory'));
 app.use('/api/legal', require('./routes/legal'));
 
 /*
@@ -130,6 +131,30 @@ app.use(
     next();
   },
   express.static(path.join(__dirname, 'uploads'), {
+    setHeaders(res) {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Accept-Ranges', 'bytes');
+    },
+  })
+);
+
+// Serve public assets (e.g. /avatars/sampath_avatar.png)
+app.use(
+  '/avatars',
+  express.static(path.join(__dirname, 'public/avatars'), {
+    setHeaders(res) {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Accept-Ranges', 'bytes');
+    },
+  })
+);
+
+// Serve house-plan-references (e.g. /house-plan-references/reference_plan_2d.png)
+app.use(
+  '/house-plan-references',
+  express.static(path.join(__dirname, 'public/house-plan-references'), {
     setHeaders(res) {
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
       res.setHeader('Access-Control-Allow-Origin', '*');

@@ -141,7 +141,7 @@ const COMMUNITY_FALLBACK_REACTIONS = [
     id: '6a8af34812ef34aed25ae8d2',
     _id: '6a8af34812ef34aed25ae8d2',
     fullName: 'Logeshwaran A',
-    username: 'logeshwarana',
+    username: 'waranlogesh0406',
     headline: 'Architectural Consultant & Real Estate Lead',
     location: 'Western Australia',
     profilePicture: null,
@@ -205,6 +205,7 @@ const resolveUserFromReq = async (req) => {
     user = await User.findOne({
       $or: [
         { username: 'saivimenthanvl' },
+        { fullName: 'Sai Vimenthan V L' },
         { fullName: 'Sai Vimenthan' },
       ],
     });
@@ -213,7 +214,7 @@ const resolveUserFromReq = async (req) => {
   return {
     id: user?._id ? user._id.toString() : (req.user?.id || 'sai'),
     _id: user?._id ? user._id.toString() : (req.user?.id || 'sai'),
-    fullName: user?.fullName || req.user?.fullName || 'Sai Vimenthan',
+    fullName: user?.fullName || req.user?.fullName || 'Sai Vimenthan V L',
     username: user?.username || req.user?.username || 'saivimenthanvl',
     headline: user?.headline || req.user?.headline || 'Elite Real Estate Broker & Commercial Portfolio Lead',
     location: user?.location || 'Chennai, Tamil Nadu · Prime Assets',

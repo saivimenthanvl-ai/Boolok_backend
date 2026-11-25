@@ -132,6 +132,40 @@ router.post('/generate', planGenLimiter, optionalAuth, async (req, res) => {
 });
 
 /**
+ * GET /api/blueprint/history
+ * Retrieve previously generated house plans for the authenticated user, or public plans.
+ */
+router.get('/history', optionalAuth, async (req, res) => {
+  try {
+    const viewerId = req.user?.id || req.user?._id || null;
+    let query = {};
+    if (viewerId) {
+      query = {
+        $or: [
+          { owner: viewerId },
+          { isPublic: true },
+        ],
+      };
+    } else {
+      query = { isPublic: true };
+    }
+
+    const projects = await BlueprintProject.find(query)
+      .sort({ createdAt: -1 })
+      .limit(30)
+      .select('projectId title plot requirements summary plan2dFileUrl plan3dFileUrl createdAt updatedAt')
+      .lean();
+
+    return res.status(200).json({
+      success: true,
+      projects,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/**
  * GET /api/blueprint/projects/:projectId
  * Retrieve a previously saved project by ID with canonical geometry and file references.
  */

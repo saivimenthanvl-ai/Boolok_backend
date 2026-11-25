@@ -14,15 +14,19 @@ const getAuthenticatedUserId = (req) =>
   req.user?.id || req.user?._id || req.userId || null;
 
 const CANONICAL_AVATAR_BY_ID_OR_USERNAME = {
-  '6afb2cf7355e1014f9452c0d': '/avatars/logeshwaran_doomsday.png',
-  'waranlogesh0406': '/avatars/logeshwaran_doomsday.png',
-  '6ace0e6586b4ca082d9f1432': '/avatars/logeshwaran_doomsday.png',
-  'logeshwarana': '/avatars/logeshwaran_doomsday.png',
-  '6addf49b5f3925f54f8491f6': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
-  'mithulanr2003': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
-  'mithulan_r': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
-  '6ae9bc64b549b88abf72eabf': '/avatars/sampath_baseball.jpg',
-  'waranalogesh0102': '/avatars/sampath_baseball.jpg',
+  '6afb2cf7355e1014f9452c0d': '/avatars/logeshwaran_warrior.png',
+  'waranlogesh0406': '/avatars/logeshwaran_warrior.png',
+  '6ace0e6586b4ca082d9f1432': '/avatars/logeshwaran_warrior.png',
+  'waranlogesh0406': '/avatars/logeshwaran_warrior.png',
+  '6addf49b5f3925f54f8491f6': '/avatars/mithulan_portrait.png',
+  'mithulanr2003': '/avatars/mithulan_portrait.png',
+  'mithulan_r': '/avatars/mithulan_portrait.png',
+  '6ab7d35eb9f6206c601a7a88': '/avatars/logesh_baseball.png',
+  'waranalogesh0102': '/avatars/logesh_baseball.png',
+  '6ae9bc64b549b88abf72eabf': '/avatars/logesh_baseball.png',
+  'sam': '/avatars/sampath_avatar.png',
+  'sampath': '/avatars/sampath_avatar.png',
+  '6ae9bd78b549b88abf72eac1': '/avatars/sampath_avatar.png',
 };
 
 const resolveCanonicalAvatar = (userLike) => {
@@ -147,7 +151,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     currentUserReaction: null,
     likesSummary: 'Liked by 3 members',
     comments: [
-      { _id: 'sc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: '8.4% cap rate on Outer Ring Road is top quartile! 🏢🚀', time: '04:15 pm', createdAt: new Date('2026-09-10T10:45:00.000Z') },
+      { _id: 'sc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_warrior.png' }, text: '8.4% cap rate on Outer Ring Road is top quartile! 🏢🚀', time: '04:15 pm', createdAt: new Date('2026-09-10T10:45:00.000Z') },
       { _id: 'sc-2', author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Strong institutional covenants on this campus.', time: '05:30 pm', createdAt: new Date('2026-09-10T12:00:00.000Z') },
     ],
     commentsCount: 2,
@@ -166,7 +170,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     likesSummary: 'Liked by 4 members',
     comments: [
       { _id: 'ac-1', author: { fullName: 'Shreekutti', username: 'shreekutti' }, text: 'Unrivaled private beach frontage!', time: '10:00 am', createdAt: new Date('2026-09-09T04:30:00.000Z') },
-      { _id: 'ac-2', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: 'Bespoke marble and high ceiling elevation.', time: '11:15 am', createdAt: new Date('2026-09-09T05:45:00.000Z') },
+      { _id: 'ac-2', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_warrior.png' }, text: 'Bespoke marble and high ceiling elevation.', time: '11:15 am', createdAt: new Date('2026-09-09T05:45:00.000Z') },
     ],
     commentsCount: 2,
     createdAt: new Date('2026-09-09T04:00:00.000Z'),
@@ -183,7 +187,7 @@ const FALLBACK_COMMUNITY_POSTS = [
     currentUserReaction: null,
     likesSummary: 'Liked by 3 members',
     comments: [
-      { _id: 'akc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: 'Triple net lease with institutional covenants is top tier!', time: '06:00 pm', createdAt: new Date('2026-09-07T12:30:00.000Z') },
+      { _id: 'akc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_warrior.png' }, text: 'Triple net lease with institutional covenants is top tier!', time: '06:00 pm', createdAt: new Date('2026-09-07T12:30:00.000Z') },
     ],
     commentsCount: 1,
     createdAt: new Date('2026-09-07T12:00:00.000Z'),
@@ -244,14 +248,14 @@ const FALLBACK_COMMUNITY_POSTS = [
     _id: 'sai-p-1',
     content: 'Grade-A institutional office headquarters with 100% occupancy and blue-chip covenants. Coventry Corporate Headquarters — 52,000 sq ft · 8.2% Cap Rate · $16,500,000.',
     mediaUrl: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200',
-    author: { _id: 'saivimenthanvl', fullName: 'Sai Vimenthan', username: 'saivimenthanvl', profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocK0o5SZUMa-JTOuTUTxS6t1Bl20HPwVkbFAz98dCG6e1rbpGA=s96-c', headline: 'Elite Real Estate Broker & Commercial Portfolio Lead', location: 'Chennai, Tamil Nadu' },
+    author: { _id: 'saivimenthanvl', fullName: 'Sai Vimenthan V L', username: 'saivimenthanvl', profilePicture: 'https://lh3.googleusercontent.com/a/ACg8ocK0o5SZUMa-JTOuTUTxS6t1Bl20HPwVkbFAz98dCG6e1rbpGA=s96-c', headline: 'Elite Real Estate Broker & Commercial Portfolio Lead', location: 'Chennai, Tamil Nadu' },
     likes: ['waranlogesh0406', 'shreekutti'],
     likesCount: 2,
     isLiked: false,
     currentUserReaction: null,
     likesSummary: 'Liked by 2 members',
     comments: [
-      { _id: 'spc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: 'Prime UK corporate covenants. Solid institutional deal!', time: '04:00 pm', createdAt: new Date('2026-09-03T10:30:00.000Z') },
+      { _id: 'spc-1', author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_warrior.png' }, text: 'Prime UK corporate covenants. Solid institutional deal!', time: '04:00 pm', createdAt: new Date('2026-09-03T10:30:00.000Z') },
     ],
     commentsCount: 1,
     createdAt: new Date('2026-09-03T10:00:00.000Z'),

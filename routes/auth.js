@@ -142,7 +142,7 @@ async function sendPhoneOtp(phoneNumber, otp) {
           },
           body: JSON.stringify({
             route: 'q',
-            message: `Your Boolok AI verification code is ${otp}. Valid for 5 minutes.`,
+            message: `Your BoolokOne verification code is ${otp}. Valid for 5 minutes.`,
             language: 'english',
             flash: 0,
             numbers: cleanPhone,
@@ -159,7 +159,7 @@ async function sendPhoneOtp(phoneNumber, otp) {
       }
 
       // Method 2: Fast2SMS GET fallback with authorization header
-      const quickUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(fast2smsKey)}&route=q&message=${encodeURIComponent(`Your Boolok AI verification code is ${otp}. Valid for 5 minutes.`)}&language=english&flash=0&numbers=${cleanPhone}`;
+      const quickUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(fast2smsKey)}&route=q&message=${encodeURIComponent(`Your BoolokOne verification code is ${otp}. Valid for 5 minutes.`)}&language=english&flash=0&numbers=${cleanPhone}`;
       const getRes = await fetch(quickUrl, {
         method: 'GET',
         headers: {
@@ -187,7 +187,7 @@ async function sendPhoneOtp(phoneNumber, otp) {
       const client = twilio(twilioSid, twilioAuth);
       const formattedTo = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber.replace(/[^0-9]/g, '').slice(-10)}`;
       const message = await client.messages.create({
-        body: `Your Boolok AI verification code is ${otp}. Valid for 5 minutes.`,
+        body: `Your BoolokOne verification code is ${otp}. Valid for 5 minutes.`,
         from: twilioPhone,
         to: formattedTo,
       });
@@ -205,14 +205,14 @@ async function sendPhoneOtp(phoneNumber, otp) {
 
 async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
   const resendApiKey = process.env.RESEND_API_KEY;
-  const fromEmail = (process.env.EMAIL_FROM || process.env.RESEND_FROM || 'Boolok AI <onboarding@resend.dev>').trim();
+  const fromEmail = (process.env.EMAIL_FROM || process.env.RESEND_FROM || 'BoolokOne <onboarding@resend.dev>').trim();
 
   const htmlBody = `
     <!DOCTYPE html>
     <html>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #060b13; color: #ffffff; padding: 24px; margin: 0;">
       <div style="background-color: #0c1626; border: 1px solid #1a273c; border-radius: 12px; max-width: 480px; margin: 0 auto; padding: 32px; text-align: center;">
-        <div style="font-size: 22px; font-weight: 800; color: #daa520; letter-spacing: 2px; margin-bottom: 6px;">★ BOOLOK AI</div>
+        <div style="font-size: 22px; font-weight: 800; color: #daa520; letter-spacing: 2px; margin-bottom: 6px;">★ BoolokOne</div>
         <div style="font-size: 13px; color: #94a3b8; margin-bottom: 24px;">AI Agent For Real Estate Services</div>
         <p style="font-size: 15px; color: #cbd5e1; line-height: 1.5; margin-bottom: 20px;">Use the following 6-digit verification code to complete your <strong>${purpose}</strong>:</p>
         <div style="background: #060b13; border: 1px solid #e6b800; border-radius: 8px; padding: 18px 24px; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #daa520; display: inline-block; margin-bottom: 24px;">
@@ -220,7 +220,7 @@ async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
         </div>
         <p style="font-size: 13px; color: #94a3b8; line-height: 1.5;">This verification code is valid for <strong>5 minutes</strong>. If you did not request this code, please ignore this email.</p>
         <div style="font-size: 11px; color: #64748b; margin-top: 30px; border-top: 1px solid #1a273c; padding-top: 16px;">
-          © 2026 Boolok GPT Real Estate Intelligence. All rights reserved.
+          © 2026 BoolokOne Real Estate Intelligence. All rights reserved.
         </div>
       </div>
     </body>
@@ -239,8 +239,8 @@ async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
         body: JSON.stringify({
           from: fromEmail,
           to: [toEmail],
-          subject: 'Your Boolok AI Verification Code',
-          text: `Your Boolok AI verification code is: ${otp}. This code expires in 5 minutes.`,
+          subject: 'Your BoolokOne Verification Code',
+          text: `Your BoolokOne verification code is: ${otp}. This code expires in 5 minutes.`,
           html: htmlBody,
         }),
       });
@@ -278,10 +278,10 @@ async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
     });
 
     const info = await transporter.sendMail({
-      from: `"Boolok AI" <${gmailUser}>`,
+      from: `"BoolokOne" <${gmailUser}>`,
       to: toEmail,
-      subject: 'Your Boolok AI Verification Code',
-      text: `Your Boolok AI verification code is: ${otp}. This code expires in 5 minutes.`,
+      subject: 'Your BoolokOne Verification Code',
+      text: `Your BoolokOne verification code is: ${otp}. This code expires in 5 minutes.`,
       html: htmlBody,
     });
 
@@ -298,10 +298,10 @@ async function sendOtpEmail(toEmail, otp, purpose = 'Account Access') {
         tls: { rejectUnauthorized: false },
       });
       const info = await fallbackTransporter.sendMail({
-        from: `"Boolok AI" <${gmailUser}>`,
+        from: `"BoolokOne" <${gmailUser}>`,
         to: toEmail,
-        subject: `Your Boolok AI Verification Code: ${otp}`,
-        text: `Your Boolok AI verification code is: ${otp}. This code expires in 5 minutes.`,
+        subject: `Your BoolokOne Verification Code: ${otp}`,
+        text: `Your BoolokOne verification code is: ${otp}. This code expires in 5 minutes.`,
         html: htmlBody,
       });
       console.log(`[nodemailer-fallback] OTP email sent to ${toEmail}: ${info.messageId}`);

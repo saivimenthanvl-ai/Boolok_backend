@@ -167,15 +167,19 @@ const resolveDurableVideoUrl = (rawUrl) => {
 };
 
 const CANONICAL_AVATAR_BY_ID_OR_USERNAME = {
-  '6afb2cf7355e1014f9452c0d': '/avatars/logeshwaran_doomsday.png',
-  'waranlogesh0406': '/avatars/logeshwaran_doomsday.png',
-  '6ace0e6586b4ca082d9f1432': '/avatars/logeshwaran_doomsday.png',
-  'logeshwarana': '/avatars/logeshwaran_doomsday.png',
-  '6addf49b5f3925f54f8491f6': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
-  'mithulanr2003': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
-  'mithulan_r': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
-  '6ae9bc64b549b88abf72eabf': '/avatars/sampath_baseball.jpg',
-  'waranalogesh0102': '/avatars/sampath_baseball.jpg',
+  '6afb2cf7355e1014f9452c0d': '/avatars/logeshwaran_warrior.png',
+  'waranlogesh0406': '/avatars/logeshwaran_warrior.png',
+  '6ace0e6586b4ca082d9f1432': '/avatars/logeshwaran_warrior.png',
+  'waranlogesh0406': '/avatars/logeshwaran_warrior.png',
+  '6addf49b5f3925f54f8491f6': '/avatars/mithulan_portrait.png',
+  'mithulanr2003': '/avatars/mithulan_portrait.png',
+  'mithulan_r': '/avatars/mithulan_portrait.png',
+  '6ab7d35eb9f6206c601a7a88': '/avatars/logesh_baseball.png',
+  'waranalogesh0102': '/avatars/logesh_baseball.png',
+  '6ae9bc64b549b88abf72eabf': '/avatars/logesh_baseball.png',
+  'sam': '/avatars/sampath_avatar.png',
+  'sampath': '/avatars/sampath_avatar.png',
+  '6ae9bd78b549b88abf72eac1': '/avatars/sampath_avatar.png',
 };
 
 const sanitizeAvatarUrl = (url, userObj = null) => {

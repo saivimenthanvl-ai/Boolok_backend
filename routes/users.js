@@ -40,7 +40,7 @@ const getAuthenticatedUserId = (req) => req.user?.id || req.user?._id || req.use
 // Note: These records are preserved in MongoDB (no deletion/merging/renaming),
 // but excluded from Suggested for You, user search, and relationship counts/modals.
 const EXCLUDED_DISCOVERY_IDS = new Set([
-  '6ace0e6586b4ca082d9f1432', // @logeshwarana (legacy uncanonical record)
+  '6ace0e6586b4ca082d9f1432', // @waranlogesh0406 (legacy uncanonical record)
   '6aef086a31b846c03b5ac537', // @resolveorseeduser
   '6aed46c6c434745e57daa204', // @brokers (Brokers)
   '6ae9bd78b549b88abf72eac0', // @mithulan_r_archived (Mithulan R archived duplicate)
@@ -73,17 +73,21 @@ const EXCLUDED_DISCOVERY_USERNAMES = new Set([
 const DINESH_CANONICAL_AVATAR = 'data:image/png;base64,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';
 
 const CANONICAL_AVATAR_BY_ID_OR_USERNAME = {
-  '6afb2cf7355e1014f9452c0d': '/avatars/logeshwaran_dark_circle.svg',
-  'waranlogesh0406': '/avatars/logeshwaran_dark_circle.svg',
-  '6ace0e6586b4ca082d9f1432': '/avatars/logeshwaran_dark_circle.svg',
-  'logeshwarana': '/avatars/logeshwaran_dark_circle.svg',
-  '6addf49b5f3925f54f8491f6': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
-  'mithulanr2003': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
-  'mithulan_r': 'https://lh3.googleusercontent.com/a/ACg8ocJNc1F5yHFweMK8qtYRFt_2AJJQqzi4y0P2t7z2a4IHwoWCQYKJ=s400-c',
+  '6afb2cf7355e1014f9452c0d': '/avatars/logeshwaran_warrior.png',
+  'waranlogesh0406': '/avatars/logeshwaran_warrior.png',
+  '6ace0e6586b4ca082d9f1432': '/avatars/logeshwaran_warrior.png',
+  'waranlogesh0406': '/avatars/logeshwaran_warrior.png',
+  '6addf49b5f3925f54f8491f6': '/avatars/mithulan_portrait.png',
+  'mithulanr2003': '/avatars/mithulan_portrait.png',
+  'mithulan_r': '/avatars/mithulan_portrait.png',
   '6aed5f1234567890abcdef01': DINESH_CANONICAL_AVATAR,
   'pgma251': DINESH_CANONICAL_AVATAR,
-  '6ae9bc64b549b88abf72eabf': '/avatars/sampath_baseball.jpg',
-  'waranalogesh0102': '/avatars/sampath_baseball.jpg',
+  '6ab7d35eb9f6206c601a7a88': '/avatars/logesh_baseball.png',
+  'waranalogesh0102': '/avatars/logesh_baseball.png',
+  '6ae9bc64b549b88abf72eabf': '/avatars/logesh_baseball.png',
+  'sam': '/avatars/sampath_avatar.png',
+  'sampath': '/avatars/sampath_avatar.png',
+  '6ae9bd78b549b88abf72eac1': '/avatars/sampath_avatar.png',
 };
 
 function isExcludedUserRef(ref) {
@@ -385,15 +389,15 @@ const COMMUNITY_MEMBERS = [
   },
   {
     username: 'waranlogesh0406',
-    aliases: ['waranlogesh0406', 'logeshwaran_ashok', 'logeshwarana'],
+    aliases: ['waranlogesh0406', 'logeshwaran_ashok'],
     fullName: 'Logeshwaran A',
     email: 'waranlogesh0406.member@boolok.ai',
     headline: 'Real Estate Professional & Boolok Member',
-    location: 'Western Australia · Vineyard Estates',
+    location: 'Pondicherry',
     bio: 'Real estate professional and advisor on the Boolok AI network.',
     closedDeals: '3',
-    profilePicture: '/avatars/logeshwaran_dark_circle.svg',
-    coverImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200',
+    profilePicture: '/avatars/logeshwaran_warrior.png',
+    coverImage: '/banners/logeshwaran_banner.png',
   },
   {
     username: 'ajmal',
@@ -787,7 +791,6 @@ router.get('/suggested', optionalAuth, async (req, res) => {
 
     const query = {
       _id: { $nin: excludedIds },
-      email: { $ne: 'logeshwarana@boolok.ai' },
       username: {
         $nin: Array.from(EXCLUDED_DISCOVERY_USERNAMES),
         $not: /^(qauser_|qamatrix_|qatest_|t\d{10,})/i,
@@ -1163,7 +1166,7 @@ const COMMUNITY_DEALS = {
       icon: 'location-city',
     },
   ],
-  logeshwarana: [
+  waranlogesh0406: [
     {
       id: 'd-logesh-1',
       title: 'Margaret River Commercial Vineyard',
@@ -1509,7 +1512,7 @@ router.get('/:id/deals', optionalAuth, async (req, res) => {
     } else if (key.includes('shree')) {
       deals = COMMUNITY_DEALS.shreekutti || [];
     } else if (key.includes('logesh')) {
-      deals = COMMUNITY_DEALS.logeshwarana || [];
+      deals = COMMUNITY_DEALS.waranlogesh0406 || [];
     } else if (key.includes('ajmal')) {
       deals = COMMUNITY_DEALS.ajmal || [];
     } else if (key.includes('bava')) {
@@ -1613,7 +1616,7 @@ const SAI_REELS = [
     thumbnail: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1200',
     videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
     comments: [
-      { _id: 'c4-1', user: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_doomsday.png' }, text: 'Grade-A office specs with strong institutional tenant appeal. 🏢💼', createdAt: new Date() },
+      { _id: 'c4-1', user: { fullName: 'Logeshwaran A', username: 'waranlogesh0406', profilePicture: '/avatars/logeshwaran_warrior.png' }, text: 'Grade-A office specs with strong institutional tenant appeal. 🏢💼', createdAt: new Date() },
       { _id: 'c4-2', user: { fullName: 'Shreekutti', username: 'shreekutti' }, text: 'High floor efficiency and convenient transit access. 🚆', createdAt: new Date() },
     ],
   },
@@ -1630,14 +1633,14 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Fully leased Grade-A Tech Park development with pre-verified institutional efficiency ratings.',
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200',
-      likes: ['sai', 'logeshwarana', 'ajmal'],
+      likes: ['sai', 'waranlogesh0406', 'ajmal'],
       comments: [
-        { author: { fullName: 'Logeshwaran A', username: 'logeshwarana' }, text: '8.4% cap rate on Outer Ring Road is top quartile.' },
+        { author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406' }, text: '8.4% cap rate on Outer Ring Road is top quartile.' },
         { author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Strong institutional covenants.' },
       ],
     },
   ],
-  logeshwarana: [],
+  waranlogesh0406: [],
   waranlogesh0406: [],
   ajmal: [
     {
@@ -1649,10 +1652,10 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Direct beach access, smart home automation, infinity pool overlooking Dubai Marina.',
       image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200',
-      likes: ['sai', 'logeshwarana', 'shreekutti', 'the_akshtr_estate'],
+      likes: ['sai', 'waranlogesh0406', 'shreekutti', 'the_akshtr_estate'],
       comments: [
         { author: { fullName: 'Shreekutti', username: 'shreekutti' }, text: 'Unrivaled private beach frontage!' },
-        { author: { fullName: 'Logeshwaran A', username: 'logeshwarana' }, text: 'Bespoke marble and high ceiling elevation.' },
+        { author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406' }, text: 'Bespoke marble and high ceiling elevation.' },
       ],
     },
   ],
@@ -1666,7 +1669,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Double-height glass living room, customized Italian joinery, panoramic sea view balcony.',
       image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200',
-      likes: ['sai', 'ajmal', 'logeshwarana'],
+      likes: ['sai', 'ajmal', 'waranlogesh0406'],
       comments: [
         { author: { fullName: 'Akshat Commercials', username: 'the_akshtr_estate' }, text: 'Incredible acoustic zoning and clean lines!' },
       ],
@@ -1682,9 +1685,9 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Modern commercial tower with multi-level parking, 100% power backup, and prime expressway frontage.',
       image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
-      likes: ['sai', 'shreekutti', 'logeshwarana'],
+      likes: ['sai', 'shreekutti', 'waranlogesh0406'],
       comments: [
-        { author: { fullName: 'Logeshwaran A', username: 'logeshwarana' }, text: 'Triple net lease with institutional covenants is top tier!' },
+        { author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406' }, text: 'Triple net lease with institutional covenants is top tier!' },
       ],
     },
   ],
@@ -1714,7 +1717,7 @@ const COMMUNITY_POSTS_MAP = {
       content: 'New architectural masterpiece in Beverly Hills. 8 Bedrooms, 11 Baths, custom Italian marble, and zero-edge cascading pool. 🏆✨ Price: $12.5M.',
       image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200',
-      likes: ['sai', 'logeshwarana', 'shreekutti'],
+      likes: ['sai', 'waranlogesh0406', 'shreekutti'],
       comments: [
         {
           _id: 'vg-c1',
@@ -1759,9 +1762,9 @@ const COMMUNITY_POSTS_MAP = {
       content: 'Grade-A institutional office headquarters with 100% occupancy and blue-chip covenants.',
       image: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200',
       mediaUrl: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200',
-      likes: ['logeshwarana', 'shreekutti'],
+      likes: ['waranlogesh0406', 'shreekutti'],
       comments: [
-        { author: { fullName: 'Logeshwaran A', username: 'logeshwarana' }, text: 'Prime UK corporate covenants.' },
+        { author: { fullName: 'Logeshwaran A', username: 'waranlogesh0406' }, text: 'Prime UK corporate covenants.' },
       ],
     },
   ],
@@ -1779,25 +1782,29 @@ router.get('/:id', optionalAuth, async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
+    const usernameKey = (profileUser.username || '').toLowerCase();
+    const isLogeshProfile = usernameKey.includes('logesh') || (profileUser.fullName || '').toLowerCase().includes('logesh');
+
     const [postCount, dbPosts, dbReels] = await Promise.all([
       Post.countDocuments({ author: profileUser._id, isArchived: { $ne: true }, isDeleted: { $ne: true } }),
       Post.find({ author: profileUser._id, isArchived: { $ne: true }, isDeleted: { $ne: true } })
         .populate('author', 'fullName username profilePicture headline location email')
         .populate('comments.user', 'fullName username profilePicture')
         .sort({ createdAt: -1 }),
-      Reel.find({
-        author: profileUser._id,
-        isDeleted: { $ne: true },
-        isArchived: { $ne: true },
-        videoUrl: { $nin: ['', null, 'null', 'undefined'] },
-      })
-        .populate('author', 'fullName username profilePicture')
-        .populate('comments.user', 'fullName username profilePicture')
-        .sort({ createdAt: -1 }),
+      isLogeshProfile
+        ? Promise.resolve([])
+        : Reel.find({
+            author: profileUser._id,
+            isDeleted: { $ne: true },
+            isArchived: { $ne: true },
+            videoUrl: { $nin: ['', null, 'null', 'undefined'] },
+          })
+            .populate('author', 'fullName username profilePicture')
+            .populate('comments.user', 'fullName username profilePicture')
+            .sort({ createdAt: -1 }),
     ]);
 
     const sanitized = sanitizeUserProfile(profileUser, viewerId);
-    const usernameKey = (profileUser.username || '').toLowerCase();
 
     const formattedPosts = (dbPosts || []).map((p) => {
       const likesArray = (p.likes || []).map((l) => (l._id ? l._id.toString() : l.toString()));
