@@ -118,6 +118,7 @@ app.use('/api/messages', require('./routes/messages'));
 app.use('/api/blueprint', require('./routes/blueprint'));
 app.use('/api/blueprint-history', require('./routes/blueprintHistory'));
 app.use('/api/legal', require('./routes/legal'));
+app.use('/api/safety', require('./routes/safety'));
 
 /*
  * Public uploaded files with Cross-Origin and Range header support
