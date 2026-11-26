@@ -1570,54 +1570,7 @@ router.get('/:id/deals', optionalAuth, async (req, res) => {
   }
 });
 
-const LOGESHWARAN_REELS = [
-  {
-    _id: 'logesh-reel-1',
-    title: 'Margaret River Vineyard',
-    location: 'Western Australia',
-    price: 'A$3,485,000',
-    aiMatch: null,
-    insight: 'Soil analysis indicates 92% suitability for premium Cabernet Sauvignon. Water rights pre-verified for 50 years.',
-    likes: 2400,
-    poster: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200',
-    thumbnail: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=1200',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    comments: [
-      { _id: 'c1-1', user: { fullName: 'Shreekutti' }, text: 'The terroir and climate suitability metrics are exceptional here! 🍇✨', createdAt: new Date() },
-      { _id: 'c1-2', user: { fullName: 'Mohammed Ajmal' }, text: '50-year pre-verified water rights make this a bulletproof acquisition. 🍷', createdAt: new Date() },
-    ],
-  },
-  {
-    _id: 'logesh-reel-2',
-    title: 'Kyoto Forest Retreat', location: 'Kyoto, Japan', price: '¥1,900,000,000',
-    aiMatch: null,
-    insight: 'Thermal zoning optimized. High potential for eco-luxury cabins or a private wellness estate.',
-    likes: 920,
-    poster: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200',
-    thumbnail: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-    comments: [
-      { _id: 'c2-1', user: { fullName: 'Mohammed Ajmal' }, text: 'Thermal zoning and serene forested topography are hard to find in Kyoto! ⛩️🍃', createdAt: new Date() },
-      { _id: 'c2-2', user: { fullName: 'Shreekutti' }, text: 'Eco-luxury cabins here will command top-tier international ADRs. 🏡✨', createdAt: new Date() },
-    ],
-  },
-  {
-    _id: 'logesh-reel-3',
-    title: 'Uluwatu Cliffside',
-    location: 'Bali, Indonesia',
-    price: '$24,000,000',
-    aiMatch: null,
-    insight: 'Tourism growth in this sector is up 14% YoY. Zoning allows for luxury boutique resort development.',
-    likes: 1800,
-    poster: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200',
-    thumbnail: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    comments: [
-      { _id: 'c3-1', user: { fullName: 'Akshat Commercials' }, text: 'Breathtaking ocean cliff views! Perfect setting for luxury resort hospitality. 🌅🏖️', createdAt: new Date() },
-      { _id: 'c3-2', user: { fullName: 'Shreekutti' }, text: '14% YoY tourism surge matches our regional Bali portfolio forecast. 📈', createdAt: new Date() },
-    ],
-  },
-];
+const LOGESHWARAN_REELS = [];
 
 const SAI_REELS = [
   {
