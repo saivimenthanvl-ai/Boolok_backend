@@ -287,12 +287,6 @@ router.get('/', optionalAuth, async (req, res) => {
     let postQuery = Post.find({
       isArchived: { $ne: true },
       isDeleted: { $ne: true },
-      ...(verifiedOnly ? {
-        $or: [
-          { isPropertyVerified: true },
-          { verificationStatus: 'verified' },
-        ],
-      } : {}),
     })
       .populate('author', 'fullName username profilePicture headline location email isVerified verified')
       .populate('comments.user', 'fullName username profilePicture')
@@ -316,11 +310,10 @@ router.get('/', optionalAuth, async (req, res) => {
           return false;
         }
 
-        // Strict verification requirements for verified-only query
+        // Verified-only query: author must be a verified professional (User.isVerified === true or User.verified === true)
         if (verifiedOnly) {
           const authorVerified = Boolean(p.author?.isVerified || p.author?.verified);
-          const propertyVerified = Boolean(p.isPropertyVerified || p.verificationStatus === 'verified');
-          if (!authorVerified || !propertyVerified) {
+          if (!authorVerified) {
             return false;
           }
         }
