@@ -111,6 +111,17 @@ const postSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isPropertyVerified: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    verificationStatus: {
+      type: String,
+      enum: ['unverified', 'pending', 'verified', 'rejected'],
+      default: 'unverified',
+      index: true,
+    },
     isArchived: {
       type: Boolean,
       default: false,

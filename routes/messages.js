@@ -55,6 +55,7 @@ router.get('/conversations', authMiddleware, async (req, res) => {
         otherUser,
         lastMessage: conv.lastMessage,
         unreadCount: unread,
+        createdAt: conv.createdAt,
         updatedAt: conv.updatedAt,
       };
     });

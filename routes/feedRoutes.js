@@ -116,6 +116,8 @@ const formatPost = (post, viewerId = null) => {
           avatar: authorAvatar,
           headline: p.author.headline || 'Real Estate Professional & Boolok Member',
           location: p.author.location || 'Global Real Estate Network',
+          isVerified: Boolean(p.author.isVerified || p.author.verified),
+          verified: Boolean(p.author.isVerified || p.author.verified),
         }
       : null,
     likes: likesArray,
@@ -133,6 +135,8 @@ const formatPost = (post, viewerId = null) => {
     showInProperties: p.showInProperties !== false,
     isFeaturedListing: p.isFeaturedListing !== false,
     showOnDashboard: p.showOnDashboard !== false,
+    isPropertyVerified: Boolean(p.isPropertyVerified || p.verificationStatus === 'verified'),
+    verificationStatus: p.verificationStatus || (p.isPropertyVerified ? 'verified' : 'unverified'),
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   };
@@ -272,18 +276,25 @@ FALLBACK_COMMUNITY_POSTS.forEach((p) => {
   p.likesSummary = '0 likes';
 });
 
-// ── GET /api/feed : Fetch posts (supports ?limit=&skip=) ────────────────────
+// ── GET /api/feed : Fetch posts (supports ?limit=&skip=&verifiedOnly=true) ────────────────────
 router.get('/', optionalAuth, async (req, res) => {
   try {
     const viewerId = getAuthenticatedUserId(req);
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
     const skip = Math.max(parseInt(req.query.skip, 10) || 0, 0);
+    const verifiedOnly = req.query.verifiedOnly === 'true' || req.query.verified === 'true';
 
     let postQuery = Post.find({
       isArchived: { $ne: true },
       isDeleted: { $ne: true },
+      ...(verifiedOnly ? {
+        $or: [
+          { isPropertyVerified: true },
+          { verificationStatus: 'verified' },
+        ],
+      } : {}),
     })
-      .populate('author', 'fullName username profilePicture headline location email')
+      .populate('author', 'fullName username profilePicture headline location email isVerified verified')
       .populate('comments.user', 'fullName username profilePicture')
       .sort({ createdAt: -1 });
 
@@ -301,7 +312,19 @@ router.get('/', optionalAuth, async (req, res) => {
         const text = (p.content || '').trim();
         const media = (p.mediaUrl || '').trim();
         // Discard corrupted empty posts
-        return text.length > 0 || (media.length > 0 && !media.includes('google.com/imgres'));
+        if (text.length === 0 && (media.length === 0 || media.includes('google.com/imgres'))) {
+          return false;
+        }
+
+        // Strict verification requirements for verified-only query
+        if (verifiedOnly) {
+          const authorVerified = Boolean(p.author?.isVerified || p.author?.verified);
+          const propertyVerified = Boolean(p.isPropertyVerified || p.verificationStatus === 'verified');
+          if (!authorVerified || !propertyVerified) {
+            return false;
+          }
+        }
+        return true;
       })
       .map((p) => formatPost(p, viewerId));
 
@@ -314,25 +337,30 @@ router.get('/', optionalAuth, async (req, res) => {
       return true;
     });
 
-    // Static fallbacks only fill in for authors with no persisted post (never duplicate a real one)
-    const dbIds = new Set(formatted.map((p) => p._id.toString()));
-    const dbAuthorHandles = new Set(
-      formatted.map((p) => String(p.author?.username || '').toLowerCase()).filter(Boolean)
-    );
-    const fallbackExtras = FALLBACK_COMMUNITY_POSTS
-      .filter((p) => !dbIds.has(p._id) && !dbAuthorHandles.has(String(p.author?.username || '').toLowerCase()))
-      .map((p) => ({
-        ...p,
-        isLiked: viewerId ? (p.likes || []).includes(viewerId.toString()) : false,
-        currentUserReaction: viewerId && (p.likes || []).includes(viewerId.toString()) ? 'like' : null,
-      }));
+    // Static fallbacks are ONLY included in general feed when DB has no posts for that author, NEVER in verifiedOnly
+    if (!verifiedOnly) {
+      const dbIds = new Set(formatted.map((p) => p._id.toString()));
+      const dbAuthorHandles = new Set(
+        formatted.map((p) => String(p.author?.username || '').toLowerCase()).filter(Boolean)
+      );
+      const fallbackExtras = FALLBACK_COMMUNITY_POSTS
+        .filter((p) => !dbIds.has(p._id) && !dbAuthorHandles.has(String(p.author?.username || '').toLowerCase()))
+        .map((p) => ({
+          ...p,
+          isLiked: viewerId ? (p.likes || []).includes(viewerId.toString()) : false,
+          currentUserReaction: viewerId && (p.likes || []).includes(viewerId.toString()) ? 'like' : null,
+        }));
 
-    formatted = [...formatted, ...fallbackExtras];
+      formatted = [...formatted, ...fallbackExtras];
+    }
 
     return res.status(200).json({ posts: formatted });
   } catch (error) {
     console.error('FETCH POSTS ERROR:', error);
-    // On any error, return fallback posts so feed is never empty
+    // On any error in verifiedOnly, return empty array rather than fallback
+    if (req.query.verifiedOnly === 'true' || req.query.verified === 'true') {
+      return res.status(200).json({ posts: [] });
+    }
     return res.status(200).json({ posts: FALLBACK_COMMUNITY_POSTS });
   }
 });

@@ -899,12 +899,19 @@ router.get('/notifications', authMiddleware, async (req, res) => {
     const viewerId = getAuthenticatedUserId(req);
     if (!viewerId) return res.status(401).json({ message: 'Unauthorized.' });
 
-    const notifications = await Notification.find({ recipient: viewerId })
+    const notifications = await Notification.find({
+      recipient: viewerId,
+      clearedAt: null,
+    })
       .populate('sender', 'fullName username profilePicture')
       .sort({ createdAt: -1 })
-      .limit(30);
+      .limit(50);
 
-    const unreadCount = await Notification.countDocuments({ recipient: viewerId, read: false });
+    const unreadCount = await Notification.countDocuments({
+      recipient: viewerId,
+      read: false,
+      clearedAt: null,
+    });
 
     return res.status(200).json({
       notifications,
@@ -922,12 +929,108 @@ router.put('/notifications/read-all', authMiddleware, async (req, res) => {
     const viewerId = getAuthenticatedUserId(req);
     if (!viewerId) return res.status(401).json({ message: 'Unauthorized.' });
 
-    await Notification.updateMany({ recipient: viewerId, read: false }, { $set: { read: true } });
+    await Notification.updateMany(
+      { recipient: viewerId, read: false, clearedAt: null },
+      { $set: { read: true } }
+    );
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(viewerId.toString()).emit('notification.readAll', { recipientId: viewerId.toString() });
+    }
 
     return res.status(200).json({ success: true, message: 'All notifications marked as read.' });
   } catch (error) {
     console.error('READ ALL NOTIFICATIONS ERROR:', error);
     return res.status(500).json({ message: 'Failed to mark notifications as read.', error: error.message });
+  }
+});
+
+// ── PUT /api/users/notifications/:id/read (Mark single notification as read) ─
+router.put('/notifications/:id/read', authMiddleware, async (req, res) => {
+  try {
+    const viewerId = getAuthenticatedUserId(req);
+    if (!viewerId) return res.status(401).json({ message: 'Unauthorized.' });
+
+    const notif = await Notification.findOneAndUpdate(
+      { _id: req.params.id, recipient: viewerId, clearedAt: null },
+      { $set: { read: true } },
+      { new: true }
+    );
+
+    const unreadCount = await Notification.countDocuments({
+      recipient: viewerId,
+      read: false,
+      clearedAt: null,
+    });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(viewerId.toString()).emit('notification.read', {
+        notificationId: req.params.id,
+        unreadCount,
+      });
+    }
+
+    return res.status(200).json({ success: true, notification: notif, unreadCount });
+  } catch (error) {
+    console.error('READ NOTIFICATION ERROR:', error);
+    return res.status(500).json({ message: 'Failed to mark notification as read.', error: error.message });
+  }
+});
+
+// ── DELETE /api/users/notifications/:id (Soft dismiss single notification) ─
+router.delete('/notifications/:id', authMiddleware, async (req, res) => {
+  try {
+    const viewerId = getAuthenticatedUserId(req);
+    if (!viewerId) return res.status(401).json({ message: 'Unauthorized.' });
+
+    await Notification.findOneAndUpdate(
+      { _id: req.params.id, recipient: viewerId },
+      { $set: { clearedAt: new Date() } }
+    );
+
+    const unreadCount = await Notification.countDocuments({
+      recipient: viewerId,
+      read: false,
+      clearedAt: null,
+    });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(viewerId.toString()).emit('notification.cleared', {
+        notificationId: req.params.id,
+        unreadCount,
+      });
+    }
+
+    return res.status(200).json({ success: true, message: 'Notification dismissed.', unreadCount });
+  } catch (error) {
+    console.error('CLEAR NOTIFICATION ERROR:', error);
+    return res.status(500).json({ message: 'Failed to dismiss notification.', error: error.message });
+  }
+});
+
+// ── DELETE /api/users/notifications (Soft dismiss all notifications) ───────
+router.delete('/notifications', authMiddleware, async (req, res) => {
+  try {
+    const viewerId = getAuthenticatedUserId(req);
+    if (!viewerId) return res.status(401).json({ message: 'Unauthorized.' });
+
+    await Notification.updateMany(
+      { recipient: viewerId, clearedAt: null },
+      { $set: { clearedAt: new Date(), read: true } }
+    );
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(viewerId.toString()).emit('notification.clearedAll', { recipientId: viewerId.toString() });
+    }
+
+    return res.status(200).json({ success: true, message: 'All notifications cleared.' });
+  } catch (error) {
+    console.error('CLEAR ALL NOTIFICATIONS ERROR:', error);
+    return res.status(500).json({ message: 'Failed to clear all notifications.', error: error.message });
   }
 });
 
@@ -2029,13 +2132,16 @@ const handleFollowUser = async (req, res) => {
 
       const updatedTarget = await User.findById(target._id).session(session);
       const updatedViewer = await User.findById(viewer._id).session(session);
+      const targetFollowerCount = new Set(updatedTarget.followers.map(String)).size;
+      const viewerFollowingCount = new Set(updatedViewer.following.map(String)).size;
+
       result = {
         status: 200,
         body: {
           isFollowing,
-          followerCount: new Set(updatedTarget.followers.map(String)).size,
-          followersCount: new Set(updatedTarget.followers.map(String)).size,
-          followingCount: new Set(updatedViewer.following.map(String)).size,
+          followerCount: targetFollowerCount,
+          followersCount: targetFollowerCount,
+          followingCount: viewerFollowingCount,
           targetUser: {
             id: updatedTarget._id.toString(),
             _id: updatedTarget._id.toString(),
@@ -2045,6 +2151,45 @@ const handleFollowUser = async (req, res) => {
           message: `${isFollowing ? 'Following' : 'Unfollowed'} ${target.fullName}`,
         },
       };
+
+      // Broadcast real-time Socket.IO events outside session
+      try {
+        const io = req.app.get('io');
+        if (io) {
+          // Notify target user of relationship & count update
+          io.to(`user_${target._id}`).emit('user.counts.updated', {
+            userId: target._id.toString(),
+            followerCount: targetFollowerCount,
+            followersCount: targetFollowerCount,
+          });
+          io.to(`user_${target._id}`).emit('follow.updated', {
+            followerId: viewer._id.toString(),
+            isFollowing,
+            followerCount: targetFollowerCount,
+          });
+          if (isFollowing && !isAlreadyFollowing) {
+            io.to(`user_${target._id}`).emit('notification.created', {
+              type: 'follow',
+              message: `${viewer.fullName} started following you.`,
+              sender: {
+                _id: viewer._id,
+                id: viewer._id,
+                fullName: viewer.fullName,
+                username: viewer.username,
+                profilePicture: viewer.profilePicture,
+              },
+              createdAt: new Date().toISOString(),
+            });
+          }
+          // Notify viewer of their following count update
+          io.to(`user_${viewer._id}`).emit('user.counts.updated', {
+            userId: viewer._id.toString(),
+            followingCount: viewerFollowingCount,
+          });
+        }
+      } catch (socketErr) {
+        console.warn('Socket broadcast warning:', socketErr.message);
+      }
     });
     return res.status(result.status).json(result.body);
   } catch (error) {
